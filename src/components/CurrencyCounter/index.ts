@@ -1,2 +1,3 @@
-export * from './CurrencyCounter';
-export * from './CurrencyCounter.types';
+export { CurrencyCounter } from "./CurrencyCounter";
+export { currencyCounterSchema } from "./schema";
+export type { CurrencyCounterProps } from "./schema";

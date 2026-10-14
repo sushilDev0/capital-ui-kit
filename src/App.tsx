@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {  CurrencyCounter } from "./components/CurrencyCounter";
+import { CurrencyCounter } from "./components/CurrencyCounter";
 import { PrivacyBadge } from "./components/PrivacyBadge";
 import { DebouncedSearch } from "./components/DebouncedSearch";
 
@@ -8,15 +8,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 p-10 flex flex-col items-center justify-center gap-6">
-      <PrivacyBadge 
-        sensitiveNumber="1234567890123456" 
-        label="Credit Card" 
+      <PrivacyBadge
+        sensitiveNumber="1234567890123456"
+        label="Credit Card"
       />
 
       <CurrencyCounter
         value={balance}
         label="Net Investment"
-        currency="INR"
+        currency="USD"
         trendPercentage={8.4}
       />
 
