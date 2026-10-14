@@ -9,8 +9,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 p-10 flex flex-col items-center justify-center gap-6">
       <PrivacyBadge
-        sensitiveNumber="1234567890123456"
+        value="1234567890123456"
         label="Credit Card"
+        revealable
       />
 
       <CurrencyCounter
