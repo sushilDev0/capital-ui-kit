@@ -28,11 +28,11 @@ export default function App() {
         Simulate Deposit (+₹15,000.25)
       </button>
 
-      <DebouncedSearch
-        placeholder="Search for something..."
-        onSearch={(query) => console.log("Searching for:", query)}
-        enableShortcut={true}
-      />
+     <DebouncedSearch
+  onSearch={(q) => console.log("search:", q)}
+  delay={400}
+  minChars={2}
+/>
     </div>
   );
 }
