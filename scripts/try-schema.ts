@@ -12,4 +12,4 @@ console.log(maskValue(g, "all", "•"));        // •••• •••• •
 console.log(maskValue("123", "last4", "•"));  // •••
 console.log(maskValue("", "last4", "•") === ""); // true
 console.log(debouncedSearchSchema.safeParse({}).data);
-console.log(debouncedSearchSchema.safeParse({ delay: -5 }).success); // false
+console.log(debouncedSearchSchema.safeParse({ delay: -5}).success); // false
