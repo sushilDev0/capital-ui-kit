@@ -14,7 +14,6 @@ if (!provider || !providerIds.includes(provider) || !apiKey || !model) {
 const prompt =
   process.argv.slice(2).join(" ") ||
   "A dashboard header with a total balance counter, a masked credit card, and a search bar";
-const code = generateCode(result.layout, { importBase: "./components" });
 const result = await generateLayout(prompt, { provider, apiKey, model });
 console.log(JSON.stringify(result, null, 2));
 

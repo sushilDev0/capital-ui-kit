@@ -27,7 +27,7 @@ export default function App() {
     <div className="flex min-h-screen flex-col items-center gap-6 bg-slate-950 p-10">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Manual</h2>
 
-      <PrivacyBadge value="1234567890123456" label="Credit Card" revealable />
+      <PrivacyBadge key="value" value="1234567890123456" label="Credit Card" revealable />
 
       <CurrencyCounter
         value={balance}
@@ -61,6 +61,23 @@ export default function App() {
       <div className="w-full max-w-sm">
         <Renderer layout={brokenLayout} />
       </div>
+
+
+       <div className="flex flex-col gap-4">
+      <CurrencyCounter
+        value={24580}
+        currency="USD"
+        locale="en-US"
+        label="Total Balance"
+        trendPercentage={12}
+      />
+      <PrivacyBadge key="value"
+        value="0000 0000 0000 4821"
+        label="Linked Card"
+        maskPattern="last4"
+        revealable
+      />
+    </div>
     </div>
   );
 }
