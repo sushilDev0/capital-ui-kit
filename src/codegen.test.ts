@@ -27,10 +27,7 @@ describe("generateCode", () => {
     });
     expect(code).toMatch(/\brevealable\b(?!=)/);
   });
-<<<<<<< HEAD
 
-=======
->>>>>>> ce5ab90 (Revert "added App.tsx package and lock files , generate.ts and privacyBage component update")
   it("adds a TODO placeholder for callback props", () => {
     const { code } = ok({
       sections: [{ component: "DebouncedSearch", props: { delay: 400 } }],

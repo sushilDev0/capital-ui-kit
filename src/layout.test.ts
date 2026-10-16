@@ -74,10 +74,7 @@ describe("validateLayout", () => {
   it("rejects an empty layout", () => {
     expect(validateLayout({ sections: [] }).ok).toBe(false);
   });
-<<<<<<< HEAD
 
-=======
->>>>>>> ce5ab90 (Revert "added App.tsx package and lock files , generate.ts and privacyBage component update")
   it("rejects input that is not an object", () => {
     expect(validateLayout("hello").ok).toBe(false);
     expect(validateLayout(null).ok).toBe(false);

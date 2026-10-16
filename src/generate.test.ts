@@ -15,10 +15,7 @@ function geminiReply(text: string, input = 100, output = 10) {
     { status: 200 },
   );
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> ce5ab90 (Revert "added App.tsx package and lock files , generate.ts and privacyBage component update")
 afterEach(() => {
   vi.unstubAllGlobals();
 });
