@@ -21,7 +21,10 @@ describe("maskValue", () => {
   it("shows only the last 4 digits", () => {
     expect(maskValue(card, "last4", "•")).toBe("•••• •••• •••• 3456");
   });
+<<<<<<< HEAD
 
+=======
+>>>>>>> ce5ab90 (Revert "added App.tsx package and lock files , generate.ts and privacyBage component update")
   it("shows only the first 4 digits", () => {
     expect(maskValue(card, "first4", "•")).toBe("1234 •••• •••• ••••");
   });
