@@ -18,7 +18,12 @@ const isComponentName = (name: string): name is ComponentName =>
   Object.hasOwn(componentMeta, name);
 
 export type ValidatedSection =
-  | { ok: true; component: ComponentName; props: Record<string, unknown> }
+  | {
+      ok: true;
+      component: ComponentName;
+      props: Record<string, unknown>; // validated, with defaults filled in
+      input: Record<string, unknown>; // only the props that were actually provided
+    }
   | { ok: false; component: string; error: string };
 
 export type LayoutResult =
@@ -37,7 +42,12 @@ export function validateLayout(input: unknown): LayoutResult {
     if (!result.success) {
       return { ok: false, component: s.component, error: z.prettifyError(result.error) };
     }
-    return { ok: true, component: s.component, props: result.data as Record<string, unknown> };
+    const parsedProps = result.data as Record<string, unknown>;
+    // keep only props the model set (and the schema knows), not filled-in defaults
+    const providedInput = Object.fromEntries(
+      Object.entries(s.props).filter(([key]) => key in parsedProps),
+    );
+    return { ok: true, component: s.component, props: parsedProps, input: providedInput };
   });
 
   return { ok: true, sections };
