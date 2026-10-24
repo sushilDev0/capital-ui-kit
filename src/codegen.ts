@@ -12,8 +12,7 @@ export type CodegenResult =
 
 // Callback props the developer wires up themselves
 const runtimePlaceholders: Record<string, string> = {
-  onSearch: "(query: string) => { /* TODO: connect your search */ }",
-};
+onSearch: "() => { /* TODO: connect your search */ }",};
 
 const plainString = /^[^"\\{}<>&\n\r]*$/;
 
