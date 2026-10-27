@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { cn } from "../../lib/cn";
 import type { CurrencyCounterProps } from "./schema";
 
 const themes = {
@@ -23,6 +24,8 @@ export function CurrencyCounter({
   label,
   trendPercentage,
   theme = "dark",
+  classNames,
+  className,
 }: CurrencyCounterProps) {
   const reduceMotion = useReducedMotion();
 
@@ -65,10 +68,17 @@ export function CurrencyCounter({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={`inline-flex w-full max-w-sm flex-col gap-1 rounded-2xl border p-5 shadow-lg backdrop-blur-sm ${t.card}`}
+      className={cn(
+        "inline-flex w-full max-w-sm flex-col gap-1 rounded-2xl border p-5 shadow-lg backdrop-blur-sm",
+        t.card,
+        classNames?.root,
+        className,
+      )}
     >
       {label && (
-        <span className={`text-xs font-medium uppercase tracking-wide ${t.label}`}>
+        <span
+          className={cn("text-xs font-medium uppercase tracking-wide", t.label, classNames?.label)}
+        >
           {label}
         </span>
       )}
@@ -77,18 +87,24 @@ export function CurrencyCounter({
         <span className="sr-only">{formatter.format(safeValue)}</span>
         <motion.span
           aria-hidden="true"
-          className={`font-mono text-3xl font-bold tabular-nums tracking-tight ${t.value}`}
+          className={cn(
+            "font-mono text-3xl font-bold tabular-nums tracking-tight",
+            t.value,
+            classNames?.value,
+          )}
         >
           {displayValue}
         </motion.span>
 
         {safeTrend !== undefined && (
           <div
-            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold",
               isUp
                 ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                : "border-rose-500/20 bg-rose-500/10 text-rose-400"
-            }`}
+                : "border-rose-500/20 bg-rose-500/10 text-rose-400",
+              classNames?.trend,
+            )}
           >
             {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             <span>

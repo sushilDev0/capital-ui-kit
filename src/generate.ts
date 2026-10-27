@@ -25,6 +25,7 @@ function buildSystemPrompt(): string {
     "- Use only component names from the catalog.",
     "- Use only props listed in that component's schema. Omit a prop to use its default.",
     "- Never include function props such as onSearch or isLoading.",
+    "- For visual styling requests (colors, backgrounds, sizes, spacing), use the classNames prop of the right component with standard Tailwind CSS v4 utility classes, e.g. {\"root\":\"bg-red-900\"}. Never invent other props for styling.",
     "- All data must be obviously fake placeholders. Never output real-looking card numbers or personal data.",
     "- Pick the components that fit the request, in a sensible top-to-bottom order.",
     "",

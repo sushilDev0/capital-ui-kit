@@ -33,6 +33,7 @@ export default function App() {
         value={balance}
         label="Net Investment"
         currency="USD"
+        locale="en-US"
         trendPercentage={8.4}
       />
 
@@ -63,7 +64,6 @@ export default function App() {
       </div>
 
 
-       <div className="flex flex-col gap-4">
       <CurrencyCounter
         value={24580}
         currency="USD"
@@ -71,13 +71,7 @@ export default function App() {
         label="Total Balance"
         trendPercentage={12}
       />
-      <PrivacyBadge key="value"
-        value="0000 0000 0000 4821"
-        label="Linked Card"
-        maskPattern="last4"
-        revealable
-      />
-    </div>
+   
     </div>
   );
 }

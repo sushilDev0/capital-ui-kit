@@ -1,16 +1,33 @@
 import { z } from "zod";
 import type { InputHTMLAttributes } from "react";
+import { classString } from "../../lib/classString";
 
 export const debouncedSearchSchema = z.object({
-  placeholder: z.string().max(60).default("Search assets or transactions...")
+  placeholder: z
+    .string()
+    .max(60)
+    .default("Search assets or transactions...")
     .describe("Input placeholder text"),
-  delay: z.number().int().min(0).max(2000).default(300)
-    .describe("Debounce delay in milliseconds"),
-  minChars: z.number().int().min(0).max(10).default(2)
+  delay: z.number().int().min(0).max(2000).default(300).describe("Debounce delay in milliseconds"),
+  minChars: z
+    .number()
+    .int()
+    .min(0)
+    .max(10)
+    .default(2)
     .describe("Minimum characters before a search runs"),
-  enableShortcut: z.boolean().default(true)
+  enableShortcut: z
+    .boolean()
+    .default(true)
     .describe("Focus the input with Cmd+K (Ctrl+K on Windows/Linux)"),
   theme: z.enum(["dark", "light"]).default("dark"),
+  classNames: z
+    .object({
+      root: classString.optional().describe("Wrapper around the input, e.g. 'max-w-md'"),
+      input: classString.optional().describe("The input box, e.g. 'bg-red-900 text-white'"),
+    })
+    .optional()
+    .describe("Extra Tailwind classes per part. Use for colors, sizes and spacing requests."),
 });
 
 // Props the model can set (used by the catalog and validator)
@@ -25,3 +42,4 @@ export type DebouncedSearchProps = DebouncedSearchConfig & {
     InputHTMLAttributes<HTMLInputElement>,
     "onChange" | "value" | "type" | "className" | "placeholder"
   >;
+

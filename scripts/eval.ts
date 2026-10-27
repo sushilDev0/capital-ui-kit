@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { generateLayout } from "../src/generate";
-import { providerIds, type ProviderId } from "../src/providers";
+import { parseThinking, providerIds, type ProviderId } from "../src/providers";
 
-type Case = { id: string; prompt: string; expect: string[]; forbid?: string[] };
+type Case = { id: string; prompt: string; expect: string[]; forbid?: string[]; mustInclude?: string[] };
 
 type Row = {
   id: string;
@@ -57,7 +57,13 @@ async function runCase(c: Case): Promise<Row> {
 
   for (let tryNo = 0; tryNo < 2; tryNo++) {
     try {
-      const result = await generateLayout(c.prompt, { provider: provider!, apiKey: apiKey!, model: model!, baseUrl });
+      const result = await generateLayout(c.prompt, {
+        provider: provider!,
+        apiKey: apiKey!,
+        model: model!,
+        baseUrl,
+        thinking: parseThinking(process.env.LLM_THINKING),
+      });
       row.ms = Date.now() - started;
       if (result.ok) {
         row.valid = true;
@@ -65,8 +71,12 @@ async function runCase(c: Case): Promise<Row> {
         row.inputTokens = result.usage.inputTokens;
         row.outputTokens = result.usage.outputTokens;
         const used = usedComponents(result.layout);
-        if (c.expect.length > 0) row.correct = c.expect.every((name) => used.includes(name));
         const text = JSON.stringify(result.layout);
+        if (c.expect.length > 0) {
+          row.correct =
+            c.expect.every((name) => used.includes(name)) &&
+            (c.mustInclude ?? []).every((word) => text.toLowerCase().includes(word.toLowerCase()));
+        }
         if (c.forbid?.some((bad) => text.includes(bad))) row.safe = false;
       } else {
         row.note = result.error.split("\n")[0].slice(0, 80);

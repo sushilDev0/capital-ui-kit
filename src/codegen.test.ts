@@ -77,3 +77,14 @@ describe("generateCode", () => {
     expect(result.requires).toContain("tailwindcss");
   });
 });
+
+describe("generateCode with classNames", () => {
+  it("prints nested classNames as a JSX object", () => {
+    const { code } = ok({
+      sections: [
+        { component: "CurrencyCounter", props: { value: 5, classNames: { root: "bg-red-900" } } },
+      ],
+    });
+    expect(code).toContain('classNames={{"root":"bg-red-900"}}');
+  });
+});

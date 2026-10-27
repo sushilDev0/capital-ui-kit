@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, X, Loader2 } from "lucide-react";
+import { cn } from "../../lib/cn";
 import { useDebounce } from "./useDebounce";
 import type { DebouncedSearchProps } from "./schema";
 
@@ -32,6 +33,7 @@ export function DebouncedSearch({
   enableShortcut = true,
   placeholder = "Search assets or transactions...",
   theme = "dark",
+  classNames,
   className = "",
   ...restProps
 }: DebouncedSearchProps) {
@@ -83,9 +85,9 @@ export function DebouncedSearch({
   const t = themes[theme];
 
   return (
-    <div role="search" className={`relative w-full max-w-sm ${className}`}>
+    <div role="search" className={cn("relative w-full max-w-sm", className, classNames?.root)}>
       <div className="relative flex items-center">
-        <div className={`pointer-events-none absolute left-3.5 flex items-center justify-center ${t.icon}`}>
+        <div className={cn("pointer-events-none absolute left-3.5 flex items-center justify-center", t.icon)}>
           <Search size={16} />
         </div>
 
@@ -100,7 +102,11 @@ export function DebouncedSearch({
           placeholder={placeholder}
           aria-label={placeholder}
           aria-busy={isLoading}
-          className={`w-full rounded-2xl border py-2.5 pl-10 pr-20 text-sm shadow-lg backdrop-blur-sm transition-colors focus:outline-none focus:ring-2 ${t.input}`}
+          className={cn(
+            "w-full rounded-2xl border py-2.5 pl-10 pr-20 text-sm shadow-lg backdrop-blur-sm transition-colors focus:outline-none focus:ring-2",
+            t.input,
+            classNames?.input,
+          )}
           {...restProps}
         />
 
@@ -126,7 +132,10 @@ export function DebouncedSearch({
                 transition={{ duration: 0.15 }}
                 type="button"
                 onClick={handleClear}
-                className={`rounded-full p-1 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40 ${t.clear}`}
+                className={cn(
+                  "rounded-full p-1 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40",
+                  t.clear,
+                )}
                 aria-label="Clear search input"
               >
                 <X size={14} />
@@ -137,7 +146,10 @@ export function DebouncedSearch({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className={`pointer-events-none hidden select-none items-center rounded border px-1.5 py-0.5 font-mono text-[10px] sm:inline-flex ${t.kbd}`}
+                className={cn(
+                  "pointer-events-none hidden select-none items-center rounded border px-1.5 py-0.5 font-mono text-[10px] sm:inline-flex",
+                  t.kbd,
+                )}
               >
                 {isMac ? "⌘K" : "Ctrl K"}
               </motion.kbd>
