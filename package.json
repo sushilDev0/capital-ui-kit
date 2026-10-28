@@ -8,9 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run",
-    "generate": "tsx --env-file=.env scripts/try-generate.ts",
-    "eval": "tsx --env-file=.env scripts/eval.ts"
+    "test": "vitest run"
+   
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
