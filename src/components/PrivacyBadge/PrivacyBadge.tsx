@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { EyeOff, Eye, Lock } from "lucide-react";
 import { cn } from "../../lib/cn";
@@ -32,11 +32,12 @@ export function PrivacyBadge({
   classNames,
 }: PrivacyBadgeProps) {
   const [isMasked, setIsMasked] = useState(true);
+const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
-    setIsMasked(true);
-  }, [value]);
-
+if (value !== prevValue) {
+  setPrevValue(value);
+  setIsMasked(true);
+}
   const t = themes[theme];
   const formatted = groupDigits(value);
   const masked = maskValue(formatted, maskPattern, maskChar);
