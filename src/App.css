@@ -1,1 +1,25 @@
-@import "tailwindcss";
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: #020617; /* Tailwind slate-950 */
+  padding: 2.5rem;
+}
+
+.deposit-btn {
+  border-radius: 0.5rem;
+  background-color: #10b981; /* Tailwind emerald-500 */
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #020617;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.deposit-btn:hover {
+  background-color: #34d399; /* Tailwind emerald-400 */
+}

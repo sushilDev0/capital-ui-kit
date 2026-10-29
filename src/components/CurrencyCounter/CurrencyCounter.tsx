@@ -1,21 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { cn } from "../../lib/cn";
+import { cx } from "../../lib/cx";
 import type { CurrencyCounterProps } from "./schema";
-
-const themes = {
-  dark: {
-    card: "border-slate-800 bg-slate-900/80",
-    label: "text-slate-400",
-    value: "text-slate-50",
-  },
-  light: {
-    card: "border-slate-200 bg-white/90",
-    label: "text-slate-500",
-    value: "text-slate-900",
-  },
-};
+import "./currency-counter.css";
 
 export function CurrencyCounter({
   value,
@@ -24,7 +12,6 @@ export function CurrencyCounter({
   label,
   trendPercentage,
   theme = "dark",
-  classNames,
   className,
 }: CurrencyCounterProps) {
   const reduceMotion = useReducedMotion();
@@ -60,7 +47,6 @@ export function CurrencyCounter({
 
   const displayValue = useTransform(springValue, (latest) => formatter.format(latest));
 
-  const t = themes[theme];
   const isUp = safeTrend !== undefined && safeTrend >= 0;
 
   return (
@@ -68,43 +54,21 @@ export function CurrencyCounter({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={cn(
-        "inline-flex w-full max-w-sm flex-col gap-1 rounded-2xl border p-5 shadow-lg backdrop-blur-sm",
-        t.card,
-        classNames?.root,
-        className,
-      )}
+      className={cx("ui-currency-counter", className)}
+      data-theme={theme}
     >
-      {label && (
-        <span
-          className={cn("text-xs font-medium uppercase tracking-wide", t.label, classNames?.label)}
-        >
-          {label}
-        </span>
-      )}
+      {label && <span className="ui-currency-counter__label">{label}</span>}
 
-      <div className="mt-1 flex items-baseline justify-between gap-2">
-        <span className="sr-only">{formatter.format(safeValue)}</span>
-        <motion.span
-          aria-hidden="true"
-          className={cn(
-            "font-mono text-3xl font-bold tabular-nums tracking-tight",
-            t.value,
-            classNames?.value,
-          )}
-        >
+      <div className="ui-currency-counter__row">
+        <span className="ui-sr-only">{formatter.format(safeValue)}</span>
+        <motion.span aria-hidden="true" className="ui-currency-counter__value">
           {displayValue}
         </motion.span>
 
         {safeTrend !== undefined && (
           <div
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold",
-              isUp
-                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                : "border-rose-500/20 bg-rose-500/10 text-rose-400",
-              classNames?.trend,
-            )}
+            className="ui-currency-counter__trend"
+            data-direction={isUp ? "up" : "down"}
           >
             {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             <span>

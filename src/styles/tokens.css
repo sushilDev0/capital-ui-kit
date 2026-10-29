@@ -1,0 +1,28 @@
+@layer theme, base, components, utilities;
+
+@layer components {
+  :where(:root) {
+    --ui-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --ui-radius-card: 1rem;
+    --ui-up: #34d399;
+    --ui-up-bg: rgb(16 185 129 / 0.1);
+    --ui-up-border: rgb(16 185 129 / 0.2);
+    --ui-down: #fb7185;
+    --ui-down-bg: rgb(244 63 94 / 0.1);
+    --ui-down-border: rgb(244 63 94 / 0.2);
+  }
+
+  :where(*, *::before, *::after) { box-sizing: border-box; }
+
+  :where(.ui-sr-only) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

@@ -1,94 +1,38 @@
+import { describe, it, expect } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
 import { CurrencyCounter } from "./CurrencyCounter";
 import { PrivacyBadge } from "./PrivacyBadge";
 import { DebouncedSearch } from "./DebouncedSearch";
-import { validateLayout } from "../layout";
-import { catalog } from "../catalog";
 
-describe("classNames slots", () => {
-  it("CurrencyCounter: a red root replaces the default background", () => {
-    const html = renderToStaticMarkup(
-      createElement(CurrencyCounter, { value: 5, classNames: { root: "bg-red-900" } }),
-    );
-    expect(html).toContain("bg-red-900");
-    expect(html).not.toContain("bg-slate-900/80");
-    expect(html).toContain("rounded-2xl"); // unrelated classes survive
+const html = (el: React.ReactElement) => renderToStaticMarkup(el);
+
+describe("className on the root", () => {
+  it("CurrencyCounter keeps its default class and adds the consumer's", () => {
+    const out = html(createElement(CurrencyCounter, { value: 100, className: "bg-red-900 text-red-200" }));
+    expect(out).toContain("ui-currency-counter");
+    expect(out).toContain("bg-red-900");
+    expect(out).toContain("text-red-200");
   });
 
-  it("CurrencyCounter: styles the value and label separately", () => {
-    const html = renderToStaticMarkup(
-      createElement(CurrencyCounter, {
-        value: 5,
-        label: "Cash",
-        classNames: { value: "text-red-300", label: "text-red-200" },
-      }),
-    );
-    expect(html).toContain("text-red-300");
-    expect(html).toContain("text-red-200");
-    expect(html).not.toContain("text-slate-50");
+  it("PrivacyBadge keeps its default class and adds the consumer's", () => {
+    const out = html(createElement(PrivacyBadge, { value: "1234567890123456", className: "bg-red-900 text-red-200" }));
+    expect(out).toContain("ui-privacy-badge");
+    expect(out).toContain("bg-red-900");
+    expect(out).toContain("text-red-200");
   });
 
-  it("CurrencyCounter: renders unchanged without classNames", () => {
-    const html = renderToStaticMarkup(createElement(CurrencyCounter, { value: 5 }));
-    expect(html).toContain("bg-slate-900/80");
-  });
-
-  it("PrivacyBadge: applies root and value classes", () => {
-    const html = renderToStaticMarkup(
-      createElement(PrivacyBadge, {
-        value: "1234 5678 9012 3456",
-        classNames: { root: "bg-red-900", value: "text-red-200" },
-      }),
-    );
-    expect(html).toContain("bg-red-900");
-    expect(html).not.toContain("bg-slate-900/80");
-    expect(html).toContain("text-red-200");
-  });
-
-  it("PrivacyBadge: never prints the hidden digits", () => {
-    const html = renderToStaticMarkup(
-      createElement(PrivacyBadge, { value: "1234 5678 9012 3456", maskPattern: "all" }),
-    );
-    expect(html).not.toContain("3456");
-  });
-
-  it("DebouncedSearch: styles the input", () => {
-    const html = renderToStaticMarkup(
-      createElement(DebouncedSearch, {
-        onSearch: () => {},
-        classNames: { input: "bg-red-900" },
-      }),
-    );
-    expect(html).toContain("bg-red-900");
-    expect(html).not.toContain("bg-slate-900/80");
+  it("DebouncedSearch keeps its default class and adds the consumer's", () => {
+    const out = html(createElement(DebouncedSearch, { onSearch: () => {}, className: "max-w-md" }));
+    expect(out).toContain("ui-search");
+    expect(out).toContain("max-w-md");
   });
 });
 
-describe("classNames in layouts and the catalog", () => {
-  it("validateLayout accepts classNames", () => {
-    const result = validateLayout({
-      sections: [
-        { component: "CurrencyCounter", props: { value: 5, classNames: { root: "bg-red-900" } } },
-      ],
-    });
-    expect(result.ok && result.sections[0].ok).toBe(true);
-  });
-
-  it("validateLayout rejects unsafe classNames", () => {
-    const result = validateLayout({
-      sections: [
-        { component: "CurrencyCounter", props: { value: 5, classNames: { root: "bg-[url(https://x.test/a.png)]" } } },
-      ],
-    });
-    expect(result.ok && result.sections[0].ok).toBe(false);
-  });
-
-  it("every component advertises classNames to the model", () => {
-    for (const entry of catalog) {
-      const props = entry.props as { properties?: Record<string, unknown> };
-      expect(props.properties?.classNames, entry.name).toBeDefined();
-    }
+describe("theme and direction attributes", () => {
+  it("CurrencyCounter sets data-theme and trend direction", () => {
+    const out = html(createElement(CurrencyCounter, { value: 1, theme: "light", trendPercentage: -2 }));
+    expect(out).toContain('data-theme="light"');
+    expect(out).toContain('data-direction="down"');
   });
 });

@@ -1,0 +1,27 @@
+@layer components {
+  :where(.ui-search) { position: relative; width: 100%; max-width: 24rem; }
+  :where(.ui-search__icon) {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: var(--ui-search-icon, #94a3b8);
+    pointer-events: none;
+  }
+  :where(.ui-search__input) {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    border: 1px solid var(--ui-search-border, #1e293b);
+    border-radius: 0.5rem;
+    background: var(--ui-search-bg, rgb(15 23 42 / 0.8));
+    color: var(--ui-search-text, #f8fafc);
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  :where(.ui-search__input::placeholder) { color: var(--ui-search-placeholder, #64748b); }
+  :where(.ui-search__input:focus-visible) {
+    outline: 2px solid var(--ui-search-focus, #34d399);
+    outline-offset: 2px;
+  }
+}
