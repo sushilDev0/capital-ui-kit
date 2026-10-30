@@ -13,7 +13,13 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     rollupOptions: {
-      external: [/^react(\/.*)?$/, /^react-dom(\/.*)?$/, /^motion(\/.*)?$/, "lucide-react", "zod"],
+      external: [
+        /^react(\/.*)?$/, 
+        /^react-dom(\/.*)?$/, 
+        /^motion(\/.*)?$/, 
+        /^lucide-react(\/.*)?$/, 
+        /^zod(\/.*)?$/
+      ],
     },
   },
 });
