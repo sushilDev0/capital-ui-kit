@@ -2,21 +2,34 @@
 
 ![CI](https://github.com/sushilDev0/capital-ui-kit/actions/workflows/ci.yml/badge.svg)
 
-Typed fintech React components with Zod schemas, a component registry, a validated JSON layout renderer and deterministic code generation.
+Typed fintech React components with Zod schemas, styled with plain layered CSS. They work in any React 19 project, and Tailwind users can override them with ordinary utility classes.
 
 > Status: work in progress. More components and a docs site are planned.
 
-## How it works
+## Install
 
-```
-JSON layout ──► Zod validation ──► renderer / generated .tsx
+```bash
+npm install capital-ui-kit
 ```
 
-1. Every component has a Zod schema describing its props.
-2. A catalog is built from those schemas, so each component's props are documented as JSON Schema.
-3. A layout is plain JSON: `{ "sections": [{ "component": "CurrencyCounter", "props": { "value": 1250 } }] }`.
-4. The layout is validated. Unknown components and invalid props are rejected, never rendered or printed as code.
-5. Valid layouts render live, or generate a ready-to-paste `.tsx` file. The code comes from the validated JSON only, so imports and props are always ones the kit defines.
+Requires React 19. The styles are injected automatically when you import a component, so there is no CSS file to import.
+
+```tsx
+import { CurrencyCounter } from "capital-ui-kit";
+
+export default function App() {
+  return (
+    <CurrencyCounter
+      value={150000}
+      label="Net Investment"
+      currency="INR"
+      locale="en-IN"
+      theme="dark"
+      trendPercentage={15.5}
+    />
+  );
+}
+```
 
 ## Components
 
@@ -24,11 +37,59 @@ JSON layout ──► Zod validation ──► renderer / generated .tsx
 |---|---|
 | `CurrencyCounter` | Animated currency amount with a caption and a trend badge |
 | `PrivacyBadge` | Masked card or account number with an optional reveal button |
-| `DebouncedSearch` | Search input with debounce, minimum characters and a Cmd/Ctrl+K shortcut |
-
-Every component accepts a `className` for the root element, and the schema-driven ones also take per-part `classNames` slots (Tailwind classes only).
+| `DebouncedSearch` | Search input with debounce and a minimum character count |
 
 More fintech components (transaction list, budget progress, payment card and others) are planned.
+
+## Styling
+
+The components use plain CSS, with no Tailwind dependency. Styles live in a `components` cascade layer and use zero-specificity selectors, so any CSS you write overrides them without `!important`.
+
+### Override with `className`
+
+Every component accepts one `className`, applied to its root element. The default `ui-*` class stays on the element, and yours is added after it.
+
+```tsx
+<CurrencyCounter value={5} className="max-w-md rounded-none" />
+```
+
+With Tailwind v4, utility classes win because Tailwind's `utilities` layer comes after the kit's `components` layer. This works by default, so you don't need to configure anything.
+
+### Theme with CSS variables
+
+To change inner parts such as the value, label or badge, set the component's CSS variables through the same `className`.
+
+```tsx
+// Tailwind arbitrary properties
+<CurrencyCounter value={5} className="[--ui-cc-value:#f87171] [--ui-cc-value-size:2.5rem]" />
+```
+
+```css
+/* or plain CSS */
+.my-card { --ui-cc-value: #f87171; --ui-cc-value-size: 2.5rem; }
+```
+
+| Component | Variables |
+|---|---|
+| `CurrencyCounter` | `--ui-cc-bg` `--ui-cc-border` `--ui-cc-label` `--ui-cc-value` `--ui-cc-value-size` `--ui-up` `--ui-up-bg` `--ui-up-border` `--ui-down` `--ui-down-bg` `--ui-down-border` |
+| `PrivacyBadge` | `--ui-pb-bg` `--ui-pb-border` `--ui-pb-label` `--ui-pb-value` `--ui-pb-value-size` `--ui-pb-toggle` `--ui-pb-toggle-hover` `--ui-pb-focus` |
+| `DebouncedSearch` | `--ui-search-bg` `--ui-search-border` `--ui-search-text` `--ui-search-placeholder` `--ui-search-icon` `--ui-search-focus` |
+
+Shared variables: `--ui-font-mono`, `--ui-radius-card`.
+
+### Server rendering
+
+Styles are added to `<head>` when the package loads in the browser. In server-rendered frameworks the markup can appear briefly unstyled before JavaScript runs.
+
+## Schemas and layouts
+
+Every component has a Zod schema describing its props. A catalog built from those schemas documents each component as JSON Schema, and a layout is plain JSON:
+
+```json
+{ "sections": [{ "component": "CurrencyCounter", "props": { "value": 1250 } }] }
+```
+
+Layouts are validated before use: unknown components and invalid props are rejected. A `className` value is checked too, and only class names (including CSS-variable overrides) are accepted.
 
 ## Run it locally
 
@@ -45,18 +106,23 @@ npm run lint
 npx tsc -b
 ```
 
+## Build the package
+
+```bash
+npm run build:lib
+```
+
 ## Project layout
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch (+ Zod schemas)
-  lib/             cn() and Tailwind class-string validation
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch (+ Zod schemas and CSS)
+  styles/          shared CSS tokens
+  lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
   catalog.ts       JSON Schema catalog of all components
   registry.ts      maps component names to React components
   layout.ts        layout schema and validation
-  Renderer.tsx     draws a validated layout
-  codegen.ts       turns a validated layout into .tsx source
 ```
 
 ## Experimental: AI generator
@@ -65,15 +131,15 @@ A bring-your-own-key prompt-to-layout generator (Gemini, Claude, OpenAI-compatib
 
 ## Tech
 
-React 19, TypeScript, Vite, Tailwind CSS v4, Motion, Zod 4, Vitest
+React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ## Roadmap
 
 - [x] Typed components with Zod schemas
-- [x] Registry, catalog and validated layout renderer
-- [x] Code generation from validated layouts
+- [x] Registry, catalog and validated layouts
 - [x] Unit tests and CI
-- [x] Per-part `classNames` slots and `className`
+- [x] Plain CSS with a single `className` prop and CSS-variable theming
+- [x] Published on npm
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
