@@ -2,32 +2,31 @@ import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Eye, EyeOff } from "lucide-react";
 import { cx } from "../../lib/cx";
+import { compact, describeMasked, groupChars, maskValue } from "./mask";
+import type { PrivacyBadgeProps } from "./schema";
 import "./privacy-badge.css";
-
-type PrivacyBadgeProps = {
-  value: string;
-  label?: string;
-  revealable?: boolean;
-  visibleEnd?: number;
-  className?: string;
-};
-
-const group = (s: string) => s.replace(/(.{4})/g, "$1 ").trim();
 
 export function PrivacyBadge({
   value,
   label,
+  maskPattern = "last4",
+  maskChar = "•",
   revealable = false,
-  visibleEnd = 4,
+  theme = "dark",
   className,
 }: PrivacyBadgeProps) {
   const reduceMotion = useReducedMotion();
   const [shown, setShown] = useState(false);
 
-  const masked = group(
-    value.slice(0, -visibleEnd).replace(/./g, "•") + value.slice(-visibleEnd),
-  );
-  const text = shown ? group(value) : masked;
+  const raw = compact(value);
+  const revealed = groupChars(raw);
+  const masked = groupChars(maskValue(raw, maskPattern, maskChar));
+  const text = shown ? revealed : masked;
+
+  // The visible text is hidden from assistive tech. This live region replaces it, so a
+  // screen reader hears "Hidden, ending in 3 4 5 6" instead of a row of bullets, and
+  // hears the change when the person presses the reveal button.
+  const announcement = shown ? raw.split("").join(" ") : describeMasked(raw, maskPattern);
 
   const swap = reduceMotion
     ? { initial: false as const, animate: {}, exit: {}, transition: { duration: 0 } }
@@ -53,13 +52,18 @@ export function PrivacyBadge({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
       className={cx("ui-privacy-badge", className)}
+      data-theme={theme}
     >
       {label && <span className="ui-privacy-badge__label">{label}</span>}
       <div className="ui-privacy-badge__row">
+        <span className="ui-sr-only" aria-live="polite">
+          {announcement}
+        </span>
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
             key={shown ? "shown" : "masked"}
             className="ui-privacy-badge__value"
+            aria-hidden="true"
             {...swap}
           >
             {text}
@@ -71,8 +75,7 @@ export function PrivacyBadge({
             type="button"
             className="ui-privacy-badge__toggle"
             onClick={() => setShown((s) => !s)}
-            aria-label={shown ? "Hide value" : "Reveal value"}
-            aria-pressed={shown}
+            aria-label={shown ? "Hide number" : "Show number"}
             whileTap={reduceMotion ? undefined : { scale: 0.9 }}
           >
             <AnimatePresence mode="wait" initial={false}>

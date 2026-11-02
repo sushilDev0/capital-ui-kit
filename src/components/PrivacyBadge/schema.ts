@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { classString } from "../../lib/classString";
 
 export const privacyBadgeSchema = z.object({
   value: z
@@ -17,14 +16,6 @@ export const privacyBadgeSchema = z.object({
   maskChar: z.enum(["•", "*"]).default("•"),
   revealable: z.boolean().default(false).describe("Show an eye button to reveal the number"),
   theme: z.enum(["dark", "light"]).default("dark"),
-  classNames: z
-    .object({
-      root: classString.optional().describe("Card container, e.g. 'bg-red-900 border-red-700'"),
-      label: classString.optional().describe("Caption text"),
-      value: classString.optional().describe("The number text"),
-    })
-    .optional()
-    .describe("Extra Tailwind classes per part. Use for colors, sizes and spacing requests."),
 });
 
 export type PrivacyBadgeProps = z.input<typeof privacyBadgeSchema> & { className?: string };

@@ -1,0 +1,324 @@
+diff --git a/src/components/PrivacyBadge/PrivacyBadge.test.ts b/src/components/PrivacyBadge/PrivacyBadge.test.ts
+new file mode 100644
+index 0000000..23dda19
+--- /dev/null
++++ b/src/components/PrivacyBadge/PrivacyBadge.test.ts
+@@ -0,0 +1,72 @@
++import { describe, it, expect } from "vitest";
++import { createElement } from "react";
++import { renderToStaticMarkup } from "react-dom/server";
++import { PrivacyBadge } from "./PrivacyBadge";
++import { maskValue, describeMasked } from "./mask";
++
++const html = (props: Parameters<typeof PrivacyBadge>[0]) =>
++  renderToStaticMarkup(createElement(PrivacyBadge, props));
++
++describe("PrivacyBadge masking", () => {
++  it("shows only the last 4 by default and never leaks the rest", () => {
++    const out = html({ value: "1234 5678 9012 3456" });
++    expect(out).toContain("•••• •••• •••• 3456");
++    expect(out).not.toContain("1234");
++    expect(out).not.toContain("5678");
++    expect(out).not.toContain("9012");
++  });
++
++  it("supports first4 and all patterns", () => {
++    expect(html({ value: "1234567890123456", maskPattern: "first4" })).toContain("1234 •••• •••• ••••");
++    const all = html({ value: "1234567890123456", maskPattern: "all" });
++    expect(all).toContain("•••• •••• •••• ••••");
++    expect(all).not.toContain("3456");
++    expect(all).not.toContain("1234");
++  });
++
++  it("uses the chosen mask character", () => {
++    expect(html({ value: "1234567890123456", maskChar: "*" })).toContain("**** **** **** 3456");
++  });
++
++  it("fully masks values of 4 characters or fewer", () => {
++    const out = html({ value: "1234" });
++    expect(out).toContain("••••");
++    expect(out).not.toContain("1234");
++  });
++
++  it("handles letters, such as an IBAN, without dropping characters", () => {
++    expect(maskValue("GB82WEST12345698765432", "last4", "•")).toBe("••••••••••••••••••5432");
++    const out = html({ value: "GB82 WEST 1234 5698 7654 32" });
++    expect(out).not.toContain("WEST");
++    expect(out).toContain("••54 32"); // grouped in 4s from the left, like an IBAN
++  });
++
++  it("describes only the visible part to screen readers", () => {
++    expect(describeMasked("1234567890123456", "last4")).toBe("Hidden, ending in 3 4 5 6");
++    expect(describeMasked("1234567890123456", "first4")).toBe("Hidden, starting with 1 2 3 4");
++    expect(describeMasked("1234567890123456", "all")).toBe("Hidden");
++    expect(describeMasked("1234", "last4")).toBe("Hidden");
++  });
++});
++
++describe("PrivacyBadge markup", () => {
++  it("hides the visual value from assistive tech and announces a description instead", () => {
++    const out = html({ value: "1234567890123456" });
++    expect(out).toContain('aria-hidden="true"');
++    expect(out).toContain('aria-live="polite"');
++    expect(out).toContain("Hidden, ending in 3 4 5 6");
++  });
++
++  it("renders the toggle only when revealable", () => {
++    expect(html({ value: "1234567890123456" })).not.toContain("<button");
++    const out = html({ value: "1234567890123456", revealable: true });
++    expect(out).toContain("<button");
++    expect(out).toContain('aria-label="Show number"');
++    expect(out).not.toContain("aria-pressed");
++  });
++
++  it("sets data-theme, defaulting to dark", () => {
++    expect(html({ value: "1234567890123456" })).toContain('data-theme="dark"');
++    expect(html({ value: "1234567890123456", theme: "light" })).toContain('data-theme="light"');
++  });
++});
+diff --git a/src/components/PrivacyBadge/PrivacyBadge.tsx b/src/components/PrivacyBadge/PrivacyBadge.tsx
+index 9e0e989..57606a5 100644
+--- a/src/components/PrivacyBadge/PrivacyBadge.tsx
++++ b/src/components/PrivacyBadge/PrivacyBadge.tsx
+@@ -2,32 +2,31 @@ import { useState } from "react";
+ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+ import { Eye, EyeOff } from "lucide-react";
+ import { cx } from "../../lib/cx";
++import { compact, describeMasked, groupChars, maskValue } from "./mask";
++import type { PrivacyBadgeProps } from "./schema";
+ import "./privacy-badge.css";
+ 
+-type PrivacyBadgeProps = {
+-  value: string;
+-  label?: string;
+-  revealable?: boolean;
+-  visibleEnd?: number;
+-  className?: string;
+-};
+-
+-const group = (s: string) => s.replace(/(.{4})/g, "$1 ").trim();
+-
+ export function PrivacyBadge({
+   value,
+   label,
++  maskPattern = "last4",
++  maskChar = "•",
+   revealable = false,
+-  visibleEnd = 4,
++  theme = "dark",
+   className,
+ }: PrivacyBadgeProps) {
+   const reduceMotion = useReducedMotion();
+   const [shown, setShown] = useState(false);
+ 
+-  const masked = group(
+-    value.slice(0, -visibleEnd).replace(/./g, "•") + value.slice(-visibleEnd),
+-  );
+-  const text = shown ? group(value) : masked;
++  const raw = compact(value);
++  const revealed = groupChars(raw);
++  const masked = groupChars(maskValue(raw, maskPattern, maskChar));
++  const text = shown ? revealed : masked;
++
++  // The visible text is hidden from assistive tech. This live region replaces it, so a
++  // screen reader hears "Hidden, ending in 3 4 5 6" instead of a row of bullets, and
++  // hears the change when the person presses the reveal button.
++  const announcement = shown ? raw.split("").join(" ") : describeMasked(raw, maskPattern);
+ 
+   const swap = reduceMotion
+     ? { initial: false as const, animate: {}, exit: {}, transition: { duration: 0 } }
+@@ -53,13 +52,18 @@ export function PrivacyBadge({
+       animate={{ opacity: 1, scale: 1 }}
+       transition={{ duration: 0.3 }}
+       className={cx("ui-privacy-badge", className)}
++      data-theme={theme}
+     >
+       {label && <span className="ui-privacy-badge__label">{label}</span>}
+       <div className="ui-privacy-badge__row">
++        <span className="ui-sr-only" aria-live="polite">
++          {announcement}
++        </span>
+         <AnimatePresence mode="wait" initial={false}>
+           <motion.span
+             key={shown ? "shown" : "masked"}
+             className="ui-privacy-badge__value"
++            aria-hidden="true"
+             {...swap}
+           >
+             {text}
+@@ -71,8 +75,7 @@ export function PrivacyBadge({
+             type="button"
+             className="ui-privacy-badge__toggle"
+             onClick={() => setShown((s) => !s)}
+-            aria-label={shown ? "Hide value" : "Reveal value"}
+-            aria-pressed={shown}
++            aria-label={shown ? "Hide number" : "Show number"}
+             whileTap={reduceMotion ? undefined : { scale: 0.9 }}
+           >
+             <AnimatePresence mode="wait" initial={false}>
+@@ -89,4 +92,4 @@ export function PrivacyBadge({
+       </div>
+     </motion.div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/PrivacyBadge/mask.ts b/src/components/PrivacyBadge/mask.ts
+index ac26def..9daa5eb 100644
+--- a/src/components/PrivacyBadge/mask.ts
++++ b/src/components/PrivacyBadge/mask.ts
+@@ -1,21 +1,45 @@
+ export type MaskPattern = "all" | "last4" | "first4";
+ 
++// Letters and digits are maskable, so account numbers such as IBANs work too.
++// Spaces and dashes are separators and are never masked.
++const MASKABLE = /[A-Za-z0-9]/g;
++
+ export function groupDigits(value: string, size = 4): string {
+   const digits = value.replace(/\D/g, "");
+   return digits.match(new RegExp(`.{1,${size}}`, "g"))?.join(" ") ?? "";
+ }
+ 
++/** Removes spaces and dashes so the value can be masked and regrouped consistently. */
++export function compact(value: string): string {
++  return value.replace(/[\s-]/g, "");
++}
++
++/** Splits a string into space-separated groups, e.g. "•••• •••• 3456". */
++export function groupChars(value: string, size = 4): string {
++  return value.match(new RegExp(`.{1,${size}}`, "g"))?.join(" ") ?? "";
++}
++
+ export function maskValue(value: string, pattern: MaskPattern, maskChar: string): string {
+-  const total = value.replace(/\D/g, "").length;
++  const total = (value.match(MASKABLE) ?? []).length;
+   const canShow = total > 4; // never reveal short numbers
+   let seen = 0;
+ 
+-  return value.replace(/\d/g, (digit) => {
++  return value.replace(MASKABLE, (ch) => {
+     const i = seen++;
+     const visible =
+       canShow &&
+       ((pattern === "last4" && i >= total - 4) ||
+         (pattern === "first4" && i < 4));
+-    return visible ? digit : maskChar;
++    return visible ? ch : maskChar;
+   });
+-}
+\ No newline at end of file
++}
++
++/** Text for screen readers while the value is hidden. Never includes more than the visible part. */
++export function describeMasked(value: string, pattern: MaskPattern): string {
++  const chars = compact(value);
++  if (chars.length <= 4 || pattern === "all") return "Hidden";
++  const spoken = (s: string) => s.split("").join(" ");
++  return pattern === "last4"
++    ? `Hidden, ending in ${spoken(chars.slice(-4))}`
++    : `Hidden, starting with ${spoken(chars.slice(0, 4))}`;
++}
+diff --git a/src/components/PrivacyBadge/privacy-badge.css b/src/components/PrivacyBadge/privacy-badge.css
+index 701089c..1d236bf 100644
+--- a/src/components/PrivacyBadge/privacy-badge.css
++++ b/src/components/PrivacyBadge/privacy-badge.css
+@@ -1,4 +1,23 @@
+ @layer components {
++  :where(.ui-privacy-badge) {
++    --ui-pb-border: #1e293b;
++    --ui-pb-bg: rgb(15 23 42 / 0.8);
++    --ui-pb-label: #94a3b8;
++    --ui-pb-value: #f8fafc;
++    --ui-pb-toggle: #94a3b8;
++    --ui-pb-toggle-hover: #f8fafc;
++    --ui-pb-focus: #34d399;
++  }
++  :where(.ui-privacy-badge[data-theme="light"]) {
++    --ui-pb-border: #e2e8f0;
++    --ui-pb-bg: rgb(255 255 255 / 0.9);
++    --ui-pb-label: #64748b;
++    --ui-pb-value: #0f172a;
++    --ui-pb-toggle: #64748b;
++    --ui-pb-toggle-hover: #0f172a;
++    --ui-pb-focus: #059669;
++  }
++
+   :where(.ui-privacy-badge) {
+     display: inline-flex;
+     flex-direction: column;
+@@ -6,10 +25,10 @@
+     width: 100%;
+     max-width: 24rem;
+     padding: 0.75rem 1rem;
+-    border: 1px solid var(--ui-pb-border, #1e293b);
++    border: 1px solid var(--ui-pb-border);
+     border-radius: 0.75rem;
+-    background: var(--ui-pb-bg, rgb(15 23 42 / 0.8));
+-    color: var(--ui-pb-value, #f8fafc);
++    background: var(--ui-pb-bg);
++    color: var(--ui-pb-value);
+   }
+   :where(.ui-privacy-badge__label) {
+     font-size: 0.75rem;
+@@ -17,7 +36,7 @@
+     font-weight: 500;
+     letter-spacing: 0.025em;
+     text-transform: uppercase;
+-    color: var(--ui-pb-label, #94a3b8);
++    color: var(--ui-pb-label);
+   }
+   :where(.ui-privacy-badge__row) {
+     display: flex;
+@@ -26,7 +45,7 @@
+     gap: 0.5rem;
+   }
+   :where(.ui-privacy-badge__value) {
+-    font-family: var(--ui-font-mono);
++    font-family: var(--ui-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+     font-size: var(--ui-pb-value-size, 1.125rem);
+     line-height: 1.75rem;
+     letter-spacing: 0.05em;
+@@ -38,12 +57,12 @@
+     border: 0;
+     border-radius: 0.375rem;
+     background: transparent;
+-    color: var(--ui-pb-toggle, #94a3b8);
++    color: var(--ui-pb-toggle);
+     cursor: pointer;
+   }
+-  :where(.ui-privacy-badge__toggle:hover) { color: var(--ui-pb-toggle-hover, #f8fafc); }
++  :where(.ui-privacy-badge__toggle:hover) { color: var(--ui-pb-toggle-hover); }
+   :where(.ui-privacy-badge__toggle:focus-visible) {
+-    outline: 2px solid var(--ui-pb-focus, #34d399);
++    outline: 2px solid var(--ui-pb-focus);
+     outline-offset: 2px;
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/components/PrivacyBadge/schema.ts b/src/components/PrivacyBadge/schema.ts
+index 0928a44..c0c2c1e 100644
+--- a/src/components/PrivacyBadge/schema.ts
++++ b/src/components/PrivacyBadge/schema.ts
+@@ -1,5 +1,4 @@
+ import { z } from "zod";
+-import { classString } from "../../lib/classString";
+ 
+ export const privacyBadgeSchema = z.object({
+   value: z
+@@ -17,14 +16,6 @@ export const privacyBadgeSchema = z.object({
+   maskChar: z.enum(["•", "*"]).default("•"),
+   revealable: z.boolean().default(false).describe("Show an eye button to reveal the number"),
+   theme: z.enum(["dark", "light"]).default("dark"),
+-  classNames: z
+-    .object({
+-      root: classString.optional().describe("Card container, e.g. 'bg-red-900 border-red-700'"),
+-      label: classString.optional().describe("Caption text"),
+-      value: classString.optional().describe("The number text"),
+-    })
+-    .optional()
+-    .describe("Extra Tailwind classes per part. Use for colors, sizes and spacing requests."),
+ });
+ 
+ export type PrivacyBadgeProps = z.input<typeof privacyBadgeSchema> & { className?: string };
+\ No newline at end of file

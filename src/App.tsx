@@ -15,7 +15,6 @@ export default function App() {
         value={balance}
         label="Net Investment"
         currency="INR"
-        locale="en-IN"
         theme="light"
         trendPercentage={15.5}
       />
