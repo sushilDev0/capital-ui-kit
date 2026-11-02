@@ -15,6 +15,10 @@ export const currencyCounterSchema = z.object({
     .max(1000)
     .optional()
     .describe("Change vs previous period, e.g. 12.5 or -3"),
+  trendDirection: z
+    .enum(["up", "down"])
+    .optional()
+    .describe("Forces the trend badge arrow and colour. By default it follows the sign of trendPercentage"),
   theme: z.enum(["dark", "light"]).default("dark"),
   classNames: z
     .object({

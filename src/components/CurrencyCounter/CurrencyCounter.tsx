@@ -11,6 +11,7 @@ export function CurrencyCounter({
   locale = "en-IN",
   label,
   trendPercentage,
+  trendDirection,
   theme = "dark",
   className,
 }: CurrencyCounterProps) {
@@ -47,7 +48,11 @@ export function CurrencyCounter({
 
   const displayValue = useTransform(springValue, (latest) => formatter.format(latest));
 
-  const isUp = safeTrend !== undefined && safeTrend >= 0;
+  // The arrow and colour follow trendDirection when it is given, otherwise the sign of
+  // trendPercentage. The percentage text always shows the number as it was passed in.
+  const direction = trendDirection ?? (safeTrend !== undefined && safeTrend < 0 ? "down" : "up");
+  const isUp = direction === "up";
+  const sign = safeTrend !== undefined && safeTrend >= 0 ? "+" : "";
 
   return (
     <motion.div
@@ -72,7 +77,8 @@ export function CurrencyCounter({
           >
             {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             <span>
-              {isUp ? "+" : ""}
+              <span className="ui-sr-only">{isUp ? "Trending up " : "Trending down "}</span>
+              {sign}
               {safeTrend.toFixed(1)}%
             </span>
           </div>

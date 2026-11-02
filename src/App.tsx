@@ -6,6 +6,8 @@ import "./App.css"; // Import your plain CSS file
 
 export default function App() {
   const [balance, setBalance] = useState(124500.5);
+  const budget = 100000;
+  const spent = 120000;
 
   return (
     <div className="app-container">
@@ -17,6 +19,9 @@ export default function App() {
         currency="INR"
         theme="light"
         trendPercentage={15.5}
+          trendDirection={spent > budget ? "down" : "up"}
+         
+
       />
 
       <button
