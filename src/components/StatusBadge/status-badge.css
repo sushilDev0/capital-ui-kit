@@ -1,0 +1,101 @@
+/* ============================================================
+   StatusBadge — plain CSS (zero Tailwind, zero config)
+   Import once in your app:  import "your-lib/status-badge.css";
+   ============================================================ */
+
+.sb-badge {
+  /* ---- palette tokens (light) ----------------------------- */
+  --sb-emerald-bg: #ecfdf5; --sb-emerald-fg: #047857; --sb-emerald-border: #a7f3d0;
+  --sb-amber-bg:   #fffbeb; --sb-amber-fg:   #b45309; --sb-amber-border:   #fde68a;
+  --sb-rose-bg:    #fff1f2; --sb-rose-fg:    #be123c; --sb-rose-border:    #fecdd3;
+  --sb-slate-bg:   #f1f5f9; --sb-slate-fg:   #334155; --sb-slate-border:   #e2e8f0;
+  --sb-purple-bg:  #faf5ff; --sb-purple-fg:  #7e22ce; --sb-purple-border:  #e9d5ff;
+  --sb-blue-bg:    #eff6ff; --sb-blue-fg:    #1d4ed8; --sb-blue-border:    #bfdbfe;
+  --sb-teal-bg:    #f0fdfa; --sb-teal-fg:    #0f766e; --sb-teal-border:    #99f6e4;
+  --sb-sky-bg:     #f0f9ff; --sb-sky-fg:     #0369a1; --sb-sky-border:     #bae6fd;
+  --sb-indigo-bg:  #eef2ff; --sb-indigo-fg:  #4338ca; --sb-indigo-border:  #c7d2fe;
+
+  /* ---- resolved defaults (fallback = pending) ------------- */
+  --sb-bg:     var(--sb-amber-bg);
+  --sb-fg:     var(--sb-amber-fg);
+  --sb-border: var(--sb-amber-border);
+
+  /* ---- base shape ----------------------------------------- */
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid var(--sb-border);
+  background-color: var(--sb-bg);
+  color: var(--sb-fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+/* ---- dark theme token overrides ------------------------- */
+.sb-badge[data-theme="dark"] {
+  --sb-emerald-bg: rgba(2, 44, 34, 0.4);   --sb-emerald-fg: #34d399; --sb-emerald-border: rgba(6, 95, 70, 0.5);
+  --sb-amber-bg:   rgba(69, 26, 3, 0.4);   --sb-amber-fg:   #fbbf24; --sb-amber-border:   rgba(146, 64, 14, 0.5);
+  --sb-rose-bg:    rgba(76, 5, 25, 0.4);   --sb-rose-fg:    #fb7185; --sb-rose-border:    rgba(159, 18, 57, 0.5);
+  --sb-slate-bg:   rgba(30, 41, 59, 0.6);  --sb-slate-fg:   #cbd5e1; --sb-slate-border:   #334155;
+  --sb-purple-bg:  rgba(59, 7, 100, 0.4);  --sb-purple-fg:  #c084fc; --sb-purple-border:  rgba(107, 33, 168, 0.5);
+  --sb-blue-bg:    rgba(23, 37, 84, 0.4);  --sb-blue-fg:    #60a5fa; --sb-blue-border:    rgba(30, 64, 175, 0.5);
+  --sb-teal-bg:    rgba(4, 47, 46, 0.4);   --sb-teal-fg:    #2dd4bf; --sb-teal-border:    rgba(17, 94, 89, 0.5);
+  --sb-sky-bg:     rgba(8, 47, 73, 0.4);   --sb-sky-fg:     #38bdf8; --sb-sky-border:     rgba(7, 89, 133, 0.5);
+  --sb-indigo-bg:  rgba(30, 27, 75, 0.4);  --sb-indigo-fg:  #818cf8; --sb-indigo-border:  rgba(55, 48, 163, 0.5);
+}
+
+/* ---- sizes ---------------------------------------------- */
+.sb-badge[data-size="sm"] { padding: 0.125rem 0.5rem;   font-size: 0.75rem;  gap: 0.25rem; }
+.sb-badge[data-size="md"] { padding: 0.25rem  0.625rem; font-size: 0.75rem;  gap: 0.375rem; font-weight: 500; }
+.sb-badge[data-size="lg"] { padding: 0.375rem 0.75rem;  font-size: 0.875rem; gap: 0.5rem;   font-weight: 500; }
+
+/* ---- status → color mapping ----------------------------- */
+/* Financial */
+.sb-badge[data-status="paid"]                { --sb-bg: var(--sb-emerald-bg); --sb-fg: var(--sb-emerald-fg); --sb-border: var(--sb-emerald-border); }
+.sb-badge[data-status="pending"]             { --sb-bg: var(--sb-amber-bg);   --sb-fg: var(--sb-amber-fg);   --sb-border: var(--sb-amber-border); }
+.sb-badge[data-status="failed"]              { --sb-bg: var(--sb-rose-bg);    --sb-fg: var(--sb-rose-fg);    --sb-border: var(--sb-rose-border); }
+.sb-badge[data-status="refunded"]            { --sb-bg: var(--sb-slate-bg);   --sb-fg: var(--sb-slate-fg);   --sb-border: var(--sb-slate-border); }
+.sb-badge[data-status="disputed"]            { --sb-bg: var(--sb-purple-bg);  --sb-fg: var(--sb-purple-fg);  --sb-border: var(--sb-purple-border); }
+.sb-badge[data-status="authorized"]          { --sb-bg: var(--sb-blue-bg);    --sb-fg: var(--sb-blue-fg);    --sb-border: var(--sb-blue-border); }
+.sb-badge[data-status="payout_sent"]         { --sb-bg: var(--sb-teal-bg);    --sb-fg: var(--sb-teal-fg);    --sb-border: var(--sb-teal-border); }
+
+/* Transit & Rides */
+.sb-badge[data-status="requested"]           { --sb-bg: var(--sb-sky-bg);     --sb-fg: var(--sb-sky-fg);     --sb-border: var(--sb-sky-border); }
+.sb-badge[data-status="accepted"]            { --sb-bg: var(--sb-indigo-bg);  --sb-fg: var(--sb-indigo-fg);  --sb-border: var(--sb-indigo-border); }
+.sb-badge[data-status="arrived"]             { --sb-bg: var(--sb-purple-bg);  --sb-fg: var(--sb-purple-fg);  --sb-border: var(--sb-purple-border); }
+.sb-badge[data-status="in_transit"]          { --sb-bg: var(--sb-amber-bg);   --sb-fg: var(--sb-amber-fg);   --sb-border: var(--sb-amber-border); }
+.sb-badge[data-status="completed"]           { --sb-bg: var(--sb-emerald-bg); --sb-fg: var(--sb-emerald-fg); --sb-border: var(--sb-emerald-border); }
+.sb-badge[data-status="cancelled_by_driver"] { --sb-bg: var(--sb-rose-bg);    --sb-fg: var(--sb-rose-fg);    --sb-border: var(--sb-rose-border); }
+
+/* Delivery & Logistics */
+.sb-badge[data-status="shipped"]             { --sb-bg: var(--sb-amber-bg);   --sb-fg: var(--sb-amber-fg);   --sb-border: var(--sb-amber-border); }
+.sb-badge[data-status="delivered"]           { --sb-bg: var(--sb-emerald-bg); --sb-fg: var(--sb-emerald-fg); --sb-border: var(--sb-emerald-border); }
+
+/* ---- explicit color override (data-color) --------------- */
+/* MUST stay after the [data-status] block: identical specificity
+   (0,1,0), so source order decides which rule wins.            */
+.sb-badge[data-color="emerald"] { --sb-bg: var(--sb-emerald-bg); --sb-fg: var(--sb-emerald-fg); --sb-border: var(--sb-emerald-border); }
+.sb-badge[data-color="amber"]   { --sb-bg: var(--sb-amber-bg);   --sb-fg: var(--sb-amber-fg);   --sb-border: var(--sb-amber-border); }
+.sb-badge[data-color="rose"]    { --sb-bg: var(--sb-rose-bg);    --sb-fg: var(--sb-rose-fg);    --sb-border: var(--sb-rose-border); }
+.sb-badge[data-color="slate"]   { --sb-bg: var(--sb-slate-bg);   --sb-fg: var(--sb-slate-fg);   --sb-border: var(--sb-slate-border); }
+.sb-badge[data-color="purple"]  { --sb-bg: var(--sb-purple-bg);  --sb-fg: var(--sb-purple-fg);  --sb-border: var(--sb-purple-border); }
+.sb-badge[data-color="blue"]    { --sb-bg: var(--sb-blue-bg);    --sb-fg: var(--sb-blue-fg);    --sb-border: var(--sb-blue-border); }
+.sb-badge[data-color="teal"]    { --sb-bg: var(--sb-teal-bg);    --sb-fg: var(--sb-teal-fg);    --sb-border: var(--sb-teal-border); }
+.sb-badge[data-color="sky"]     { --sb-bg: var(--sb-sky-bg);     --sb-fg: var(--sb-sky-fg);     --sb-border: var(--sb-sky-border); }
+.sb-badge[data-color="indigo"]  { --sb-bg: var(--sb-indigo-bg);  --sb-fg: var(--sb-indigo-fg);  --sb-border: var(--sb-indigo-border); }
+
+/* ---- icon ----------------------------------------------- */
+.sb-badge__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: 0 0 auto;
+  display: inline-block;
+}
+
+/* ---- reduced motion ------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sb-badge { transition: none; }
+}

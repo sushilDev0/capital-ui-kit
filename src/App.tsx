@@ -3,6 +3,7 @@ import { CurrencyCounter } from "./components/CurrencyCounter";
 import { PrivacyBadge } from "./components/PrivacyBadge";
 import { DebouncedSearch } from "./components/DebouncedSearch";
 import "./App.css"; // Import your plain CSS file
+import StatusBadge from "./components/StatusBadge/StatusBadge";
 
 export default function App() {
   const [balance, setBalance] = useState(124500.5);
@@ -19,8 +20,8 @@ export default function App() {
         currency="INR"
         theme="light"
         trendPercentage={15.5}
-          trendDirection={spent > budget ? "down" : "up"}
-         
+        trendDirection={spent > budget ? "down" : "up"}
+
 
       />
 
@@ -32,6 +33,8 @@ export default function App() {
       </button>
 
       <DebouncedSearch onSearch={(q) => console.log("search:", q)} delay={400} minChars={2} />
+
+      <StatusBadge status="failed" color="rose" theme="dark" />
     </div>
   );
 }
