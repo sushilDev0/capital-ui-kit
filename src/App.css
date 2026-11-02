@@ -1,25 +1,86 @@
+/* 1. The Canvas: Rich Gradient Background */
 .app-container {
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
   gap: 1.5rem;
-  background-color: #020617; /* Tailwind slate-950 */
   padding: 2.5rem;
+  flex-wrap: wrap;
+  /* Replaced flat color with a deep, vibrant gradient */
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* 2. Typography: Clean & High Contrast */
+h2 {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.025em;
+}
+
+p {
+  color: #94a3b8; /* Slate-400 for better readability */
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+/* 3. The Glass Card */
+.app-blocks {
+  display: flex;
+  flex-direction: column;
+  cursor:pointer;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 1rem; /* Smoother corners for glass */
+  
+  /* Semi-transparent white/blue tint */
+  background: rgba(255, 255, 255, 0.05); 
+  
+  /* The Frosted Glass Magic */
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  
+  /* Crisp white edge highlight */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Layered shadows for depth */
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.3), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+}
+
+/* 4. Modern Button */
 .deposit-btn {
   border-radius: 0.5rem;
-  background-color: #10b981; /* Tailwind emerald-500 */
+  background-color: #10b981; /* Emerald */
   padding: 0.5rem 1rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #020617;
+  color: #ffffff; /* Changed to white for better contrast */
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); /* Green glow */
 }
 
 .deposit-btn:hover {
-  background-color: #34d399; /* Tailwind emerald-400 */
+  background-color: #34d399;
+  transform: translateY(-1px); /* Slight lift on hover */
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.deposit-btn:active {
+  transform: translateY(0);
+}
+
+/* 5. Status Badge Container */
+.status-badge-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
