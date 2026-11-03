@@ -1,0 +1,157 @@
+/* ============================================================
+   StatCard — Plain CSS with Glassmorphism
+   ============================================================ */
+
+.stat-card {
+  /* ---- Light Theme Tokens ---- */
+  --sc-bg: rgba(255, 255, 255, 0.7);
+  --sc-border: rgba(0, 0, 0, 0.08);
+  --sc-text-main: #0f172a;
+  --sc-text-muted: #64748b;
+  --sc-icon-bg: rgba(0, 0, 0, 0.04);
+
+  /* Trend Colors (Light) */
+  --sc-trend-up-bg: #dcfce7;   --sc-trend-up-text: #166534;
+  --sc-trend-down-bg: #fee2e2; --sc-trend-down-text: #991b1b;
+  --sc-trend-neutral-bg: #f1f5f9; --sc-trend-neutral-text: #334155;
+
+  /* Base Layout */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  min-width: 240px;
+  
+  /* Glass Effect */
+  background: var(--sc-bg);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid var(--sc-border);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ---- Dark Theme ---- */
+.stat-card[data-theme="dark"] {
+  --sc-bg: rgba(15, 23, 42, 0.6);
+  --sc-border: rgba(255, 255, 255, 0.1);
+  --sc-text-main: #f8fafc;
+  --sc-text-muted: #94a3b8;
+  --sc-icon-bg: rgba(255, 255, 255, 0.1);
+
+  /* Trend Colors (Dark) */
+  --sc-trend-up-bg: rgba(6, 78, 59, 0.5);   --sc-trend-up-text: #34d399;
+  --sc-trend-down-bg: rgba(76, 5, 25, 0.5); --sc-trend-down-text: #fb7185;
+  --sc-trend-neutral-bg: rgba(30, 41, 59, 0.5); --sc-trend-neutral-text: #cbd5e1;
+  
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Sizes ---- */
+.stat-card[data-size="sm"] { padding: 1rem;   gap: 0.25rem; }
+.stat-card[data-size="sm"] .stat-card__value { font-size: 1.5rem; }
+.stat-card[data-size="sm"] .stat-card__title { font-size: 0.75rem; }
+
+.stat-card[data-size="md"] { padding: 1.5rem; gap: 0.5rem; }
+.stat-card[data-size="md"] .stat-card__value { font-size: 2rem; }
+.stat-card[data-size="md"] .stat-card__title { font-size: 0.875rem; }
+
+.stat-card[data-size="lg"] { padding: 2rem;   gap: 0.75rem; }
+.stat-card[data-size="lg"] .stat-card__value { font-size: 2.5rem; }
+.stat-card[data-size="lg"] .stat-card__title { font-size: 1rem; }
+
+/* ---- Header (Title & Icon) ---- */
+.stat-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card__title {
+  color: var(--sc-text-muted);
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: var(--sc-icon-bg);
+  color: var(--sc-text-muted);
+}
+
+.stat-card__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ---- Main Value ---- */
+.stat-card__value {
+  color: var(--sc-text-main);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  margin-top: 0.25rem;
+}
+
+/* ---- Footer (Delta & Caption) ---- */
+.stat-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.stat-card__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.stat-card__delta svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.stat-card__caption {
+  color: var(--sc-text-muted);
+  font-size: 0.75rem;
+}
+
+/* ---- Trend Logic (Data Attributes) ---- */
+.stat-card[data-trend="up"] .stat-card__delta {
+  background: var(--sc-trend-up-bg);
+  color: var(--sc-trend-up-text);
+}
+.stat-card[data-trend="down"] .stat-card__delta {
+  background: var(--sc-trend-down-bg);
+  color: var(--sc-trend-down-text);
+}
+.stat-card[data-trend="neutral"] .stat-card__delta {
+  background: var(--sc-trend-neutral-bg);
+  color: var(--sc-trend-neutral-text);
+}
+
+/* Add to stat-card.css */
+.stat-card {
+  /* ... existing styles ... */
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card:hover {
+  z-index: 10; /* Brings it above sibling cards while hovering */
+}

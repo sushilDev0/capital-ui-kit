@@ -84,3 +84,11 @@ p {
   align-items: flex-start;
   flex-wrap: wrap;
 }
+
+.stat-card-container{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
