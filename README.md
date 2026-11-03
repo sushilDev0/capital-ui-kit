@@ -39,11 +39,12 @@ export default function App() {
 | `PrivacyBadge` | Masked card or account number with an optional reveal button |
 | `DebouncedSearch` | Search input with debounce and a minimum character count |
 | `StatusBadge` | Consistent paid, pending, failed and refunded states for transaction, invoice and order lists |
-| `StatCard` | Card for showing a key figure or metric |
+| `StatCard` | KPI card with spring-animated rising numbers, trend deltas, and glassmorphism |
+| `OmniInput` | Universal amount input for Fiat, Crypto, Stocks, and Marketing with smart formatting |
 
-<!-- TODO: check the StatCard description above and add a props section for StatusBadge and StatCard, like the PrivacyBadge one below -->
+<!-- TODO: add a props section for StatusBadge, StatCard and OmniInput, like the PrivacyBadge one below -->
 
-More fintech components are planned. `AmountInput` and `HoldToConfirmButton` are next, followed by a transaction list, budget progress, a payment card and others.
+More fintech components are planned. `HoldToConfirmButton` and `EmiCalculator` are next, followed by a transaction list, budget progress, a payment card and others.
 
 ### PrivacyBadge
 
@@ -65,6 +66,10 @@ Shows a card or account number with most of it hidden. The full value is never r
 | `className` | `string` | none | Added to the root element |
 
 Screen readers do not read the row of masked characters. They hear a short description such as "Hidden, ending in 3 4 5 6", and hear the full number only after the person presses the reveal button.
+
+### OmniInput
+
+A highly scalable, universal input component built for Fintech, Crypto, Stock Markets, and Marketing Analytics. It handles complex locale formatting, decimal constraints, and shortcut parsing (e.g., typing `1.5k` becomes `1,500.00`).
 
 ## Styling
 
@@ -99,8 +104,9 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `CurrencyCounter` | `--ui-cc-bg` `--ui-cc-border` `--ui-cc-label` `--ui-cc-value` `--ui-cc-value-size` `--ui-up` `--ui-up-bg` `--ui-up-border` `--ui-down` `--ui-down-bg` `--ui-down-border` |
 | `PrivacyBadge` | `--ui-pb-bg` `--ui-pb-border` `--ui-pb-label` `--ui-pb-value` `--ui-pb-value-size` `--ui-pb-toggle` `--ui-pb-toggle-hover` `--ui-pb-focus` |
 | `DebouncedSearch` | `--ui-search-bg` `--ui-search-border` `--ui-search-text` `--ui-search-placeholder` `--ui-search-icon` `--ui-search-focus` |
-
-<!-- TODO: add rows for StatusBadge and StatCard to the table above with their --ui-* variables -->
+| `StatusBadge` | `--ui-sb-bg` `--ui-sb-fg` `--ui-sb-border` |
+| `StatCard` | `--ui-sc-bg` `--ui-sc-border` `--ui-sc-text-main` `--ui-sc-text-muted` `--ui-sc-icon-bg` `--ui-sc-trend-up-bg` `--ui-sc-trend-down-bg` |
+| `OmniInput` | `--ui-omni-bg` `--ui-omni-border` `--ui-omni-text` `--ui-omni-placeholder` `--ui-omni-error-text` `--ui-omni-preset-bg` |
 
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
 
@@ -143,7 +149,7 @@ npm run build:lib
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard (+ Zod schemas and CSS)
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard, OmniInput (+ Zod schemas and CSS)
   styles/          shared CSS tokens
   lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
@@ -168,7 +174,8 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
 - [x] `StatusBadge` and `StatCard`
-- [ ] `AmountInput` and `HoldToConfirmButton`
+- [x] `OmniInput` (Universal Amount Input)
+- [ ] `HoldToConfirmButton` and `EmiCalculator`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
@@ -176,18 +183,11 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ### 0.1.3 (unreleased)
 
-- Added: `StatusBadge` for paid, pending, failed and refunded states.
-- Added: `StatCard`.
+- WIP: `Hold to confirm button` for Press and hold to confirm; prevents accidental transfers.
+- WIP: `EMICalculator` for Loan amount, rate, tenure with live EMI and amortization table
+<!-- TODO: set the final release date, or change "(unreleased)" if 0.1.3 is already published -->
 
-<!-- TODO: add AmountInput and HoldToConfirmButton here once they are done, and set the final release date -->
 
-### 0.1.2
-
-- Fixed: the stylesheet is now imported by the package entry, so components are styled without any extra import. Version 0.1.1 shipped without this.
-- Fixed: shared variables (`--ui-radius-card`, `--ui-font-mono`, `--ui-up`, `--ui-down` and their background and border variants) are now included in `styles.css`. In 0.1.1 they were missing, so `CurrencyCounter` lost its rounded corners and trend colours.
-- `PrivacyBadge`: `maskPattern`, `maskChar` and `theme` now work, matching its schema.
-- `PrivacyBadge`: fixed a bug where `visibleEnd={0}` showed the full number. **Removed the undocumented `visibleEnd` prop.** Use `maskPattern` instead: `"last4"` matches the old default of 4 visible characters, `"first4"` shows the start, and `"all"` hides everything.
-- `PrivacyBadge`: added a light theme and screen reader support.
 
 ## License
 
