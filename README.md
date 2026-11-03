@@ -38,8 +38,12 @@ export default function App() {
 | `CurrencyCounter` | Animated currency amount with a caption and a trend badge |
 | `PrivacyBadge` | Masked card or account number with an optional reveal button |
 | `DebouncedSearch` | Search input with debounce and a minimum character count |
+| `StatusBadge` | Consistent paid, pending, failed and refunded states for transaction, invoice and order lists |
+| `StatCard` | Card for showing a key figure or metric |
 
-More fintech components (transaction list, budget progress, payment card and others) are planned.
+<!-- TODO: check the StatCard description above and add a props section for StatusBadge and StatCard, like the PrivacyBadge one below -->
+
+More fintech components are planned. `AmountInput` and `HoldToConfirmButton` are next, followed by a transaction list, budget progress, a payment card and others.
 
 ### PrivacyBadge
 
@@ -96,6 +100,8 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `PrivacyBadge` | `--ui-pb-bg` `--ui-pb-border` `--ui-pb-label` `--ui-pb-value` `--ui-pb-value-size` `--ui-pb-toggle` `--ui-pb-toggle-hover` `--ui-pb-focus` |
 | `DebouncedSearch` | `--ui-search-bg` `--ui-search-border` `--ui-search-text` `--ui-search-placeholder` `--ui-search-icon` `--ui-search-focus` |
 
+<!-- TODO: add rows for StatusBadge and StatCard to the table above with their --ui-* variables -->
+
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
 
 ### Server rendering
@@ -137,7 +143,7 @@ npm run build:lib
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch (+ Zod schemas and CSS)
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard (+ Zod schemas and CSS)
   styles/          shared CSS tokens
   lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
@@ -161,10 +167,19 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Unit tests and CI
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
+- [x] `StatusBadge` and `StatCard`
+- [ ] `AmountInput` and `HoldToConfirmButton`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
 ## Changelog
+
+### 0.1.3 (unreleased)
+
+- Added: `StatusBadge` for paid, pending, failed and refunded states.
+- Added: `StatCard`.
+
+<!-- TODO: add AmountInput and HoldToConfirmButton here once they are done, and set the final release date -->
 
 ### 0.1.2
 
