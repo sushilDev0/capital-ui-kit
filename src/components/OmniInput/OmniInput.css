@@ -1,0 +1,176 @@
+/* ============================================================
+   Omni-Input Styling
+   ============================================================ */
+
+.omni-input {
+  /* Light Theme */
+  --omni-bg: rgba(255, 255, 255, 0.6);
+  --omni-border: rgba(0, 0, 0, 0.1);
+  --omni-text: #0f172a;
+  --omni-placeholder: #94a3b8;
+  --omni-error-text: #991b1b;
+  --omni-preset-bg: rgba(0, 0, 0, 0.05);
+  
+  /* Scalability Engine */
+  --omni-base-size: 1rem;
+  
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  width: 100%;
+}
+
+/* Dark Theme */
+.omni-input[data-theme="dark"] {
+  --omni-bg: rgba(15, 23, 42, 0.6);
+  --omni-border: rgba(255, 255, 255, 0.1);
+  --omni-text: #f8fafc;
+  --omni-placeholder: #64748b;
+  --omni-error-text: #fca5a5;
+  --omni-preset-bg: rgba(255, 255, 255, 0.08);
+}
+
+/* Sizes */
+.omni-input[data-size="sm"] { --omni-base-size: 0.875rem; }
+.omni-input[data-size="md"] { --omni-base-size: 1.125rem; }
+.omni-input[data-size="lg"] { --omni-base-size: 1.5rem; }
+.omni-input[data-size="xl"] { --omni-base-size: 2.25rem; }
+
+/* Header & Error */
+.omni-input__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.omni-input__label {
+  font-size: calc(var(--omni-base-size) * 0.75);
+  font-weight: 500;
+  color: var(--omni-text);
+  opacity: 0.9;
+}
+.omni-input__error {
+  font-size: calc(var(--omni-base-size) * 0.7);
+  color: var(--omni-error-text);
+  font-weight: 600;
+}
+
+/* Wrapper */
+.omni-input__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--omni-bg);
+  border-radius: 0.75em;
+  padding: 0 0.75em;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid var(--omni-border);
+}
+
+/* The Animated Gradient Focus Ring */
+.omni-input[data-focused="true"] .omni-input__wrapper {
+  border-color: transparent;
+}
+.omni-input[data-focused="true"] .omni-input__wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), #10b981, #3b82f6, #8b5cf6, #10b981);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin 3s linear infinite;
+  pointer-events: none;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes spin {
+  to { --angle: 360deg; }
+}
+
+/* Variants */
+.omni-input[data-variant="ghost"] .omni-input__wrapper {
+  background: transparent;
+  border-color: transparent;
+}
+.omni-input[data-variant="flushed"] .omni-input__wrapper {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--omni-border);
+  border-radius: 0;
+  padding: 0;
+}
+
+/* Input Field */
+.omni-input__field {
+  flex: 1;
+  min-width: 0; /* Prevents flexbox overflow on huge numbers */
+  background: transparent;
+  border: none;
+  padding: 0.6em 0;
+  font-weight: 700;
+  color: var(--omni-text);
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  transition: font-size 0.2s ease;
+  text-align: right; /* Default */
+}
+.omni-input[data-align="left"] .omni-input__field {
+  text-align: left;
+}
+.omni-input__field::placeholder {
+  color: var(--omni-placeholder);
+  font-weight: 400;
+}
+
+/* Slots */
+.omni-input__slot {
+  display: flex;
+  align-items: center;
+  font-size: calc(var(--omni-base-size) * 0.85);
+  color: var(--omni-placeholder);
+  flex-shrink: 0;
+}
+.omni-input__prefix { margin-right: 0.5em; }
+.omni-input__suffix { margin-left: 0.5em; }
+
+/* Presets */
+.omni-input__presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+.omni-input__preset-btn {
+  background: var(--omni-preset-bg);
+  border: 1px solid var(--omni-border);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: calc(var(--omni-base-size) * 0.7);
+  font-weight: 600;
+  color: var(--omni-text);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+}
+.omni-input__preset-btn:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: #10b981;
+}
+
+/* Error & Disabled */
+.omni-input[data-error="true"] .omni-input__wrapper {
+  border-color: var(--omni-error-text);
+}
+.omni-input[data-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
