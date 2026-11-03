@@ -32,6 +32,14 @@
 
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  
+  /* For the hover lift effect */
+  position: relative;
+  z-index: 1;
+}
+
+.stat-card:hover {
+  z-index: 10; /* Keeps the lifted card above its siblings */
 }
 
 /* ---- Dark Theme ---- */
@@ -143,15 +151,4 @@
 .stat-card[data-trend="neutral"] .stat-card__delta {
   background: var(--sc-trend-neutral-bg);
   color: var(--sc-trend-neutral-text);
-}
-
-/* Add to stat-card.css */
-.stat-card {
-  /* ... existing styles ... */
-  position: relative;
-  z-index: 1;
-}
-
-.stat-card:hover {
-  z-index: 10; /* Brings it above sibling cards while hovering */
 }

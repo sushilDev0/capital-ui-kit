@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, animate } from 'motion/react';
 import type { StatCardProps } from './schema';
 import './stat-card.css';
 
-/* Inline SVGs for trend indicators to keep the component dependency-free */
+/* Inline SVGs for trend indicators */
 const TREND_ICONS = {
   up: (
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
@@ -25,40 +25,24 @@ const TREND_ICONS = {
 /* 🪄 Magic Component: Rising Numbers with Scale Effect */
 const AnimatedNumber = ({ value }: { value: string | number }) => {
   const stringValue = String(value);
-  
-  // Extract the number from the string (e.g., "$45,231.89" -> "45,231.89")
   const match = stringValue.match(/([0-9.,]+)/);
 
-  // If there are no numbers (e.g., "N/A"), just return the text with a scale effect
-  if (!match) {
-    return (
-      <motion.span
-        initial={{ opacity: 0, scale: 0.5, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        {stringValue}
-      </motion.span>
-    );
-  }
+  // 1. Safely calculate values BEFORE hooks
+  const numberString = match ? match[0] : '';
+  const numericValue = match ? parseFloat(numberString.replace(/,/g, '')) : 0;
+  const isValidNumber = match && !isNaN(numericValue);
 
-  const numberString = match[0];
-  const numericValue = parseFloat(numberString.replace(/,/g, ''));
-  
-  if (isNaN(numericValue)) return <span>{stringValue}</span>;
+  const prefix = match ? stringValue.slice(0, match.index) : '';
+  const suffix = match ? stringValue.slice(match.index! + numberString.length) : '';
+  const decimals = match && numberString.includes('.') ? numberString.split('.')[1].length : 0;
+  const hasCommas = match ? numberString.includes(',') : false;
 
-  // Keep the prefix ($) and suffix (%, k)
-  const prefix = stringValue.slice(0, match.index);
-  const suffix = stringValue.slice(match.index! + numberString.length);
-  
-  // Detect formatting (decimals and commas)
-  const decimals = numberString.includes('.') ? numberString.split('.')[1].length : 0;
-  const hasCommas = numberString.includes(',');
-
+  // 2. ALWAYS call hooks unconditionally
   const count = useMotionValue(0);
   
-  // Format the counting number back into the styled string
   const rounded = useTransform(count, (latest) => {
+    if (!isValidNumber) return stringValue; 
+    
     let formatted = latest.toFixed(decimals);
     if (hasCommas) {
       const parts = formatted.split('.');
@@ -68,8 +52,9 @@ const AnimatedNumber = ({ value }: { value: string | number }) => {
     return `${prefix}${formatted}${suffix}`;
   });
 
-  // Trigger the counter animation on mount
   useEffect(() => {
+    if (!isValidNumber) return;
+
     const controls = animate(count, numericValue, {
       type: "spring",
       stiffness: 50,  
@@ -77,19 +62,28 @@ const AnimatedNumber = ({ value }: { value: string | number }) => {
       mass: 1,
     });
     return controls.stop;
-  }, [numericValue, count]);
+  }, [numericValue, count, isValidNumber]);
 
+  // 3. NOW we can safely return early
+  if (!isValidNumber) {
+    return (
+      <motion.span
+        initial={{ opacity: 0, scale: 0.5, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        style={{ display: "inline-block", transformOrigin: "left center" }}
+      >
+        {stringValue}
+      </motion.span>
+    );
+  }
+
+  // 4. Return the animated numbers
   return (
     <motion.span
-      /* ✨ The Scaling Effect for the numbers */
       initial={{ opacity: 0, scale: 0.5, y: 15 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 260, 
-        damping: 20,
-        delay: 0.1 // Slight delay so the card pops in first, then the numbers
-      }}
+      transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
       style={{ display: "inline-block", transformOrigin: "left center" }}
     >
       {rounded}
@@ -119,29 +113,17 @@ export const StatCard: React.FC<StatCardProps> = ({
       /* 1. Entry Spring */
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 260, 
-        damping: 20 
-      }} 
+      transition={{ type: "spring", stiffness: 260, damping: 20 }} 
 
       /* 2. Hover & Tap Springs */
       whileHover={{ 
         scale: 1.03, 
-        y: -4, // Lifts up slightly
-        transition: { 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 25 
-        } 
+        y: -4,
+        transition: { type: "spring", stiffness: 400, damping: 25 } 
       }}
       whileTap={{ 
-        scale: 0.98, // Squishes down when clicked
-        transition: { 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 25 
-        } 
+        scale: 0.98, 
+        transition: { type: "spring", stiffness: 400, damping: 25 } 
       }}
     >
       <div className="stat-card__header">
@@ -150,7 +132,6 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
 
       <div className="stat-card__value">
-        {/* 🪄 Replaced static value with the scaling counting logic */}
         <AnimatedNumber value={value} />
       </div>
 

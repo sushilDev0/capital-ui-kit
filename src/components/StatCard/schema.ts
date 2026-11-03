@@ -11,8 +11,7 @@ export const statCardSchema = z.object({
     .describe("The main KPI value. Accepts string for pre-formatted numbers like '$1,000'."),
     
   delta: z
-    .string()
-    .or(z.number())
+    .union([z.string(), z.number()])
     .optional()
     .describe("The change indicator (e.g., '+20.1%')."),
     
@@ -32,7 +31,7 @@ export const statCardSchema = z.object({
     .describe("Theme preference for color contrast adaptation."),
 });
 
-// ✅ Icon and className are React-specific, so they go here:
+// Icon and className are React-specific, so they go here
 export type StatCardProps = z.input<typeof statCardSchema> & {
   icon?: React.ReactNode;
   className?: string;
