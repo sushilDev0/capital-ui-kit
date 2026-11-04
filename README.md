@@ -42,7 +42,7 @@ export default function App() {
 | `StatCard` | KPI card with spring-animated rising numbers, trend deltas, and glassmorphism |
 | `OmniInput` | Universal amount input for Fiat, Crypto, Stocks, and Marketing with smart formatting |
 | `HoldToConfirmButton` | Safety button requiring a long press to confirm high-stakes actions (e.g., deleting an account) |
-| `EmiCalculator` | Live loan calculator with amortization schedule |
+| `FinancialCalculator` | Universal calculator engine with dynamic sliders, animated results, and amortization tables |
 
 
 <!-- TODO: add a props section for StatusBadge, StatCard and OmniInput, like the PrivacyBadge one below -->
@@ -138,6 +138,42 @@ A safety-first button that requires the user to press and hold for a specific du
 | `children` | `ReactNode` | `none` | Overrides the label and icon with fully custom JSX. |
 | `className` | `string` | `none` | Added to the root element. |
 
+### FinancialCalculator
+
+A universal engine for building complex financial calculators (EMI, SIP, loans, tax). It provides a highly scalable UI shell with live sliders, animated results, and a dynamic amortization table. The actual math is decoupled and passed in via the `calculate` prop.
+
+```tsx
+<FinancialCalculator
+  title="Loan EMI Calculator"
+  locale="en-IN"
+  inputs={[
+    { id: "principal", label: "Loan Amount", min: 10000, max: 10000000, step: 10000, defaultValue: 500000, prefix: "₹" },
+    { id: "rate", label: "Interest Rate", min: 1, max: 30, step: 0.1, defaultValue: 8.5, suffix: "%" },
+    { id: "tenure", label: "Tenure", min: 1, max: 30, step: 1, defaultValue: 5, suffix: " Yrs" },
+  ]}
+  calculate={(values) => {
+    // Custom math logic here
+    return {
+      result: { highlightLabel: "Monthly EMI", highlightValue: "₹10,255", breakdown: [...] },
+      table: { columns: ["Year", "Principal", "Interest"], rows: [...] }
+    };
+  }}
+/>
+
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | **Required** | The heading displayed at the top of the calculator. |
+| `inputs` | `CalculatorInput[]` | **Required** | An array configuring the sliders (`id`, `label`, `min`, `max`, `step`, `defaultValue`, `prefix`, `suffix`). |
+| `locale` | `string` | `"en-IN"` | Controls number grouping for the slider values (e.g., `en-IN` = `12,34,567`). |
+| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `calculate` | `(values) => { result, table }` | **Required** | The pure math function. Receives the current slider values and returns the formatted result strings and table data. |
+| `className` | `string` | `none` | Added to the root element. |
+
+
 ## Styling
 
 The components use plain CSS, with no Tailwind dependency. Styles live in a `components` cascade layer and use zero-specificity selectors, so any CSS you write overrides them without `!important`.
@@ -174,7 +210,8 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `StatusBadge` | `--ui-sb-bg` `--ui-sb-fg` `--ui-sb-border` |
 | `StatCard` | `--ui-sc-bg` `--ui-sc-border` `--ui-sc-text-main` `--ui-sc-text-muted` `--ui-sc-icon-bg` `--ui-sc-trend-up-bg` `--ui-sc-trend-down-bg` |
 | `OmniInput` | `--ui-omni-bg` `--ui-omni-border` `--ui-omni-text` `--ui-omni-placeholder` `--ui-omni-error-text` `--ui-omni-preset-bg` |
-|`HoldToConfirmButton`| `--btn-bg` `--btn-text` `--btn-progress` `--btn-duration` 
+| `HoldToConfirmButton` | `--btn-bg` `--btn-text` `--btn-progress`  `--btn-duration`| 
+| `FinancialCalculator` | `--ec-bg` `--ec-border` `--ec-text`  `--ec-muted` `--ec-highlight` `--ec-accent` `--ec-input-bg` |
 
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
 
@@ -241,18 +278,18 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Unit tests and CI
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
-- [x] `StatusBadge` and `StatCard`
-- [x] `OmniInput` (Universal Amount Input)
-- [ ] `EmiCalculator` and `OtpInput`
+- [x] `HoldToConfirmButton` and `StatCard`
+- [x] `FinancialCalculator` (Universal Amount Input)
+- [ ] `OtpInput` and `SplitBill`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
 ## Changelog
 
-### 0.1.4 (unreleased)
+### 0.1.5 (unreleased)
 
-- WIP: `EMICalculator` for Loan amount, rate, tenure with live EMI and amortization table
-- WIP: `OtpInput` for Paste, auto-advance and backspace handling for verification codes
+- WIP: `SplitBill` Divide an amount with rounding that always sums to the total
+- WIP: `OtpInput` Paste, auto-advance and backspace handling for verification codes
 <!-- TODO: set the final release date, or change "(unreleased)" if 0.1.4 is already published -->
 
 
