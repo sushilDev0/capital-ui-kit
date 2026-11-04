@@ -2,6 +2,11 @@ import type { ZodType } from "zod";
 import { currencyCounterSchema } from "./components/CurrencyCounter/schema";
 import { privacyBadgeSchema } from "./components/PrivacyBadge/schema";
 import { debouncedSearchSchema } from "./components/DebouncedSearch/schema";
+// 🚀 New Schemas
+import { holdToConfirmButtonSchema } from "./components/HoldToConfirmButton/schema";
+import { statusBadgeSchema } from "./components/StatusBadge/schema";
+import { statCardSchema } from "./components/StatCard/schema";
+import { omniInputSchema } from "./components/OmniInput/schema";
 
 export type ComponentMeta = {
   schema: ZodType;
@@ -35,6 +40,41 @@ export const componentMeta = {
     dependencies: ["motion", "lucide-react", "zod", "clsx", "tailwind-merge"],
     requires: ["tailwindcss"],
     runtimeProps: ["onSearch", "isLoading"],
+  },
+  
+  // 🚀 NEW COMPONENTS (Plain CSS Architecture)
+  
+  HoldToConfirmButton: {
+    schema: holdToConfirmButtonSchema,
+    description:
+      "Button that requires a long press (hold) to confirm high-stakes actions like deleting an account or transferring funds.",
+    dependencies: ["zod"], // No motion needed, pure React/CSS
+    requires: [], // Uses pure CSS
+    runtimeProps: ["onConfirm"],
+  },
+  StatusBadge: {
+    schema: statusBadgeSchema,
+    description:
+      "Consistent paid, pending, failed, refunded and transit states for transaction, invoice and order lists.",
+    dependencies: ["zod"], // Uses inline SVGs, no lucide-react needed
+    requires: [], // Uses pure CSS
+    runtimeProps: [],
+  },
+  StatCard: {
+    schema: statCardSchema,
+    description:
+      "KPI card with spring-animated rising numbers, trend deltas, icons, and a glassmorphism design.",
+    dependencies: ["motion", "zod"],
+    requires: [], // Uses pure CSS
+    runtimeProps: [],
+  },
+  OmniInput: {
+    schema: omniInputSchema,
+    description:
+      "Universal amount input for Fiat, Crypto, Stocks, and Marketing. Handles locale formatting, custom decimals, shortcuts (e.g., '1.5k'), and quick-fill presets.",
+    dependencies: ["motion", "zod"],
+    requires: [], // Uses pure CSS
+    runtimeProps: ["onChange", "prefix", "suffix"],
   },
 } satisfies Record<string, ComponentMeta>;
 

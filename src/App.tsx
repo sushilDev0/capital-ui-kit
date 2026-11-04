@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { CurrencyCounter } from "./components/CurrencyCounter";
 import { PrivacyBadge } from "./components/PrivacyBadge";
@@ -5,103 +6,90 @@ import { DebouncedSearch } from "./components/DebouncedSearch";
 import StatusBadge from "./components/StatusBadge/StatusBadge";
 import { StatCard } from "./components/StatCard/StatCard";
 import { OmniInput } from "./components/OmniInput/OmniInput";
+import { HoldToConfirmButton } from "./components/HoldToConfirmButton/HoldToConfirmButton";
+import { DemoBlock } from "./components/DemoBlock";
+import {  AlertTriangle } from "lucide-react";
 import "./App.css";
 
-export default function App() {
-  const [balance, setBalance] = useState(124500.5);
-  const budget = 100000;
-  const spent = 120000;
+// 🚀 1. EXTRACT DATA (Simulating data from an API)
+const MOCK_STATS = [
+  { title: "Total Revenue", value: "$1,200,000", delta: "+15.5%", trend: "up" as const },
+  { title: "Active Users", value: "3,450", delta: "-5.2%", trend: "down" as const },
+  { title: "New Signups", value: "1,200", delta: "+0.0%", trend: "neutral" as const },
+];
 
-  // State for the OmniInputs so they don't crash
+const MOCK_BADGES = [
+  { status: "failed" as const, color: "rose" as const },
+  { status: "completed" as const, color: "teal" as const },
+  { status: "arrived" as const, color: "indigo" as const },
+  { status: "refunded" as const, color: "amber" as const },
+];
+
+export default function App() {
+  // State
+  const [balance, setBalance] = useState(124500.5);
   const [transferAmount, setTransferAmount] = useState<number | null>(null);
   const [shares, setShares] = useState<number | null>(null);
   const [btcAmount, setBtcAmount] = useState<number | null>(null);
   const [adImpressions, setAdImpressions] = useState<number | null>(null);
 
+  // 🚀 2. EXTRACT HANDLERS (Prevents re-creating functions on every render)
+  const handleDeposit = () => setBalance((prev) => prev + 15000.25);
+  const handleConfirm = () => alert("Transfer Confirmed!");
+
   return (
     <div className="app-container">
       
-      <div className="app-blocks">
-        <h2>Privacy Badge Component</h2>
-        <PrivacyBadge key="value" value="1234567890123456" label="Credit Card" revealable />
-      </div>
+      <DemoBlock title="Privacy Badge Component">
+        <PrivacyBadge value="1234567890123456" label="Credit Card" revealable />
+      </DemoBlock>
 
-      <div className="app-blocks">
-        <h2>CurrencyCounter Component</h2>
+      <DemoBlock title="CurrencyCounter Component">
         <CurrencyCounter
           value={balance}
           label="Net Investment"
           currency="INR"
           theme="light"
           trendPercentage={15.5}
-          trendDirection={spent > budget ? "down" : "up"}
+          trendDirection="up"
         />
-        <button
-          onClick={() => setBalance((prev) => prev + 15000.25)}
-          className="deposit-btn"
-        >
+        <button onClick={handleDeposit} className="deposit-btn">
           Simulate Deposit (+$15,000.25)
         </button>
-      </div>
+      </DemoBlock>
 
-      <div className="app-blocks">
-        <h2>Debounced Search Component</h2>
-        <p>Type in the search box below. The search will be logged to the console after a 400ms delay.</p>
+      <DemoBlock 
+        title="Debounced Search Component" 
+        description="Type in the search box below. The search will be logged after a 400ms delay."
+      >
         <DebouncedSearch onSearch={(q) => console.log("search:", q)} delay={400} minChars={2} />
-      </div>
+      </DemoBlock>
 
-      <div className="app-blocks">
-        <h2>Status Badge Component</h2>
-        <p>This is a status badge indicating a failed status with a rose color theme.</p>
+      <DemoBlock 
+        title="Status Badge Component" 
+        description="Map over an array of statuses to render badges dynamically."
+      >
         <div className="status-badge-container">
-          <StatusBadge status="failed" color="rose" theme="dark" />
-          <StatusBadge status="completed" color="teal" theme="dark" />
-          <StatusBadge status="arrived" color="indigo" theme="dark" />
-          <StatusBadge status="refunded" color="amber" theme="dark" />
+          {/* 🚀 3. DYNAMIC RENDERING */}
+          {MOCK_BADGES.map((badge, i) => (
+            <StatusBadge key={i} status={badge.status} color={badge.color} theme="dark" />
+          ))}
         </div>
-      </div>
+      </DemoBlock>
 
-      <div className="app-blocks">
-        <h2>Stat Card Component</h2>
-        <p>This is a stat card showing total revenue with an upward trend.</p>
-        
-        {/* Added flex container for stat cards */}
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-          <StatCard
-            title="Total Revenue"
-            value="$1,200,000"
-            delta="+15.5%"
-            trend="up"
-            size="md"
-            theme="dark"
-          />
-          <StatCard
-            title="Active Users"
-            value="3,450"
-            delta="-5.2%"
-            trend="down"
-            size="md"
-            theme="dark"
-          />
-          <StatCard
-            title="New Signups"
-            value="1,200"
-            delta="+0.0%"
-            trend="neutral"
-            size="md"
-            theme="dark"
-          />
+      <DemoBlock title="Stat Card Component" description="KPI cards with spring animations.">
+        <div className="demo-flex-row">
+          {MOCK_STATS.map((stat, i) => (
+            <StatCard key={i} {...stat} size="md" theme="dark" />
+          ))}
         </div>
-      </div>
+      </DemoBlock>
 
-      {/* 🚀 FIXED: Omni Input is now a SIBLING, not nested inside Stat Card */}
-      <div className="app-blocks">
-        <h2>Omni Input (Universal Input)</h2>
-        <p>Demonstrating 4 different domains using one component.</p>
-        
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginTop: "1rem" }}>
-          
-          {/* 1. Fintech Fiat */}
+      <DemoBlock 
+        title="Omni Input (Universal Input)" 
+        description="Demonstrating 4 different domains using one component."
+      >
+        <div className="demo-flex-col">
           <OmniInput
             format="currency"
             currency="USD"
@@ -114,7 +102,6 @@ export default function App() {
             max={100000}
           />
 
-          {/* 2. Stock Market */}
           <OmniInput 
             format="decimal"
             symbol="AAPL"
@@ -125,7 +112,6 @@ export default function App() {
             onChange={setShares}
           />
 
-          {/* 3. Crypto */}
           <OmniInput 
             format="decimal"
             symbol="BTC"
@@ -137,7 +123,6 @@ export default function App() {
             onChange={setBtcAmount}
           />
 
-          {/* 4. Marketing Analytics */}
           <OmniInput 
             format="compact"
             decimals={0}
@@ -145,9 +130,25 @@ export default function App() {
             value={adImpressions}
             onChange={setAdImpressions}
           />
-
         </div>
-      </div>
+      </DemoBlock>
+
+      <DemoBlock 
+        title="Hold To Confirm Button" 
+        description="A safety interaction for high-stakes actions."
+      >
+       <HoldToConfirmButton 
+          variant="solid" 
+          theme="danger" 
+          size="md" 
+          holdDuration={2000}
+          onConfirm={handleConfirm} 
+          label="Hold to Factory Reset"
+          icon={<AlertTriangle size={18} />}
+        />
+
+     
+      </DemoBlock>
 
     </div>
   );

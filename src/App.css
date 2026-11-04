@@ -207,3 +207,18 @@ p {
   flex-wrap: wrap;
   margin-top: 0.5rem;
 }
+
+
+.demo-flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.demo-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}

@@ -1,0 +1,98 @@
+.hold-btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+  
+  /* Colors are injected via React style prop */
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid transparent;
+}
+
+/* Sizes */
+.hold-btn[data-size="sm"] { padding: 0.5rem 1rem; font-size: 0.875rem; }
+.hold-btn[data-size="md"] { padding: 0.75rem 1.5rem; font-size: 1rem; }
+.hold-btn[data-size="lg"] { padding: 1rem 2rem; font-size: 1.125rem; }
+
+/* Variants */
+.hold-btn[data-variant="outline"] {
+  background-color: transparent;
+  color: var(--btn-bg);
+  border-color: var(--btn-bg);
+}
+
+.hold-btn[data-variant="ghost"] {
+  background-color: transparent;
+  color: var(--btn-bg);
+}
+
+/* The Progress Fill */
+.hold-btn__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background-color: var(--btn-progress);
+  transition: width 0s; /* Snap back instantly on cancel */
+  z-index: 0;
+}
+
+.hold-btn.holding .hold-btn__progress {
+  width: 100%;
+  /* Uses the injected CSS variable to match the JS timer perfectly */
+  transition: width var(--btn-duration, 1000ms) linear;
+}
+
+/* Content */
+.hold-btn__content {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* States */
+.hold-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.hold-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+.hold-btn__content {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* Adds a nice space between the icon and the text */
+}
+
+/* Ensure the SVG scales with the text size */
+.hold-btn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hold-btn__icon svg {
+  width: 1.25em; /* Matches font-size (e.g., 20px if font is 16px) */
+  height: 1.25em;
+}
