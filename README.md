@@ -279,7 +279,7 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
 - [x] `HoldToConfirmButton` and `StatCard`
-- [x] `FinancialCalculator` (Universal Amount Input)
+- [x] `FinancialCalculator` (Universal Calculator)
 - [ ] `OtpInput` and `SplitBill`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
