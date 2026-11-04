@@ -41,6 +41,9 @@ export default function App() {
 | `StatusBadge` | Consistent paid, pending, failed and refunded states for transaction, invoice and order lists |
 | `StatCard` | KPI card with spring-animated rising numbers, trend deltas, and glassmorphism |
 | `OmniInput` | Universal amount input for Fiat, Crypto, Stocks, and Marketing with smart formatting |
+| `HoldToConfirmButton` | Safety button requiring a long press to confirm high-stakes actions (e.g., deleting an account) |
+| `EmiCalculator` | Live loan calculator with amortization schedule |
+
 
 <!-- TODO: add a props section for StatusBadge, StatCard and OmniInput, like the PrivacyBadge one below -->
 
@@ -55,7 +58,7 @@ Shows a card or account number with most of it hidden. The full value is never r
 // •••• •••• •••• 3456
 ```
 
-| Prop | Type | Default | What it does |
+| Prop | Type | Default | Description |
 |---|---|---|---|
 | `value` | `string` | required | The number to show. Spaces and dashes are ignored and the result is regrouped in 4s. Letters work too, so account numbers such as IBANs are fine. Layout JSON validated against the schema accepts digits, spaces and dashes only |
 | `label` | `string` | none | Small caption above the number |
@@ -70,6 +73,70 @@ Screen readers do not read the row of masked characters. They hear a short descr
 ### OmniInput
 
 A highly scalable, universal input component built for Fintech, Crypto, Stock Markets, and Marketing Analytics. It handles complex locale formatting, decimal constraints, and shortcut parsing (e.g., typing `1.5k` becomes `1,500.00`).
+
+
+```tsx
+<OmniInput 
+  format="decimal" 
+  symbol="BTC" 
+  symbolPosition="suffix" 
+  decimals={8} 
+  label="Sell Amount"
+  enableShortcuts
+  onChange={(val) => console.log(val)}
+/>
+// Output on blur: 1.50000000 BTC
+```
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `value` | `number \| null` | `null` | The controlled numeric value. `null` means empty. |
+| `onChange` | `(value: number \| null) => void` | **Required** | Called with the parsed number, never the formatted text. |
+| `format` | `"currency" \| "decimal" \| "percent" \| "compact"` | `"currency"` | The formatting engine. `compact` turns `1500000` into `1.5M`. |
+| `locale` | `string` | `"en-IN"` | Controls grouping (e.g., `en-IN` = `12,34,567`, `en-US` = `1,234,567`). |
+| `decimals` | `number` | `2` | Max decimals. `2` for fiat, `8` for crypto, `0` for whole numbers. |
+| `currency` | `string` | `"INR"` | ISO currency code used by the `Intl` API. |
+| `symbol` | `string` | `none` | Overrides the currency symbol. Use for crypto (`BTC`) or stocks (`AAPL`). |
+| `symbolPosition` | `"prefix" \| "suffix"` | `"prefix"` | Places the symbol before (`$100`) or after (`100 BTC`). |
+| `showSymbol` | `boolean` | `true` | Toggles the currency/symbol display. |
+| `min` / `max` | `number` | `none` | Validation limits checked on blur. |
+| `enableShortcuts` | `boolean` | `true` | Allows typing `1k` for `1000`, `1m` for `1,000,000`. |
+| `presets` | `number[]` | `none` | Renders quick-fill pill buttons below the input. |
+| `size` | `"sm" \| "md" \| "lg" \| "xl"` | `"md"` | Fluidly scales padding, text, and radius. |
+| `variant` | `"default" \| "ghost" \| "flushed"` | `"default"` | `default` is glass, `flushed` is an underline only. |
+| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `prefix` / `suffix` | `ReactNode` | `none` | Slots to inject custom elements (e.g., a token selector or "MAX" button). |
+| `className` | `string` | `none` | Added to the root element. |
+
+
+### HoldToConfirmButton
+
+A safety-first button that requires the user to press and hold for a specific duration (e.g., 1 second) to confirm a destructive or high-stakes action. Features a fluid progress animation, automatic text contrast calculation, and semantic theme colors.
+
+```tsx  
+<HoldToConfirmButton 
+  variant="solid" 
+  theme="danger" 
+  size="md" 
+  onConfirm={() => alert("Account Deleted")} 
+  label="Hold to Delete Account"
+  icon={<TrashIcon />}
+/>
+```
+## Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `onConfirm` | `() => void` | **Required** | Callback triggered only after the hold duration completes. |
+| `label` | `string` | `"Hold to confirm"` | The text inside the button. |
+| `holdDuration` | `number` | `1000` | Time in milliseconds the user must hold the button. |
+| `disabled` | `boolean` | `false` | Disables the button and ignores interactions. |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Button padding and font size. |
+| `variant` | `"solid" \| "outline" \| "ghost"` | `"solid"` | Visual style of the button. |
+| `theme` | `"primary" \| "success" \| "warning" \| "danger" \| "info" \| "neutral" \| "dark" \| "light" \| string` | `"primary"` | Semantic theme or a custom CSS hex code. Auto-calculates text contrast. |
+| `icon` | `ReactNode` | `none` | Optional SVG icon placed before the text. |
+| `children` | `ReactNode` | `none` | Overrides the label and icon with fully custom JSX. |
+| `className` | `string` | `none` | Added to the root element. |
 
 ## Styling
 
@@ -107,6 +174,7 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `StatusBadge` | `--ui-sb-bg` `--ui-sb-fg` `--ui-sb-border` |
 | `StatCard` | `--ui-sc-bg` `--ui-sc-border` `--ui-sc-text-main` `--ui-sc-text-muted` `--ui-sc-icon-bg` `--ui-sc-trend-up-bg` `--ui-sc-trend-down-bg` |
 | `OmniInput` | `--ui-omni-bg` `--ui-omni-border` `--ui-omni-text` `--ui-omni-placeholder` `--ui-omni-error-text` `--ui-omni-preset-bg` |
+|`HoldToConfirmButton`| `--btn-bg` `--btn-text` `--btn-progress` `--btn-duration` 
 
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
 
@@ -175,7 +243,7 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Published on npm
 - [x] `StatusBadge` and `StatCard`
 - [x] `OmniInput` (Universal Amount Input)
-- [ ] `HoldToConfirmButton` and `EmiCalculator`
+- [ ] `EmiCalculator` and `OtpInput`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
@@ -183,9 +251,9 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ### 0.1.4 (unreleased)
 
-- WIP: `Hold to confirm button` for Press and hold to confirm; prevents accidental transfers.
 - WIP: `EMICalculator` for Loan amount, rate, tenure with live EMI and amortization table
-<!-- TODO: set the final release date, or change "(unreleased)" if 0.1.3 is already published -->
+- WIP: `OtpInput` for Paste, auto-advance and backspace handling for verification codes
+<!-- TODO: set the final release date, or change "(unreleased)" if 0.1.4 is already published -->
 
 
 
