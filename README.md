@@ -181,7 +181,7 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ## Changelog
 
-### 0.1.3 (unreleased)
+### 0.1.4 (unreleased)
 
 - WIP: `Hold to confirm button` for Press and hold to confirm; prevents accidental transfers.
 - WIP: `EMICalculator` for Loan amount, rate, tenure with live EMI and amortization table
