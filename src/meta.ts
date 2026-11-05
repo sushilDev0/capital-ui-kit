@@ -3,10 +3,11 @@ import { currencyCounterSchema } from "./components/CurrencyCounter/schema";
 import { privacyBadgeSchema } from "./components/PrivacyBadge/schema";
 import { debouncedSearchSchema } from "./components/DebouncedSearch/schema";
 // 🚀 New Schemas
-import { holdToConfirmButtonSchema } from "./components/HoldToConfirmButton/schema";
 import { statusBadgeSchema } from "./components/StatusBadge/schema";
 import { statCardSchema } from "./components/StatCard/schema";
 import { omniInputSchema } from "./components/OmniInput/schema";
+import { holdToConfirmButtonSchema} from "./components/HoldToConfirmButton/schema";
+import { pinInputSchema } from "./components/PinInput/schema";
 
 export type ComponentMeta = {
   schema: ZodType;
@@ -76,6 +77,16 @@ export const componentMeta = {
     requires: [], // Uses pure CSS
     runtimeProps: ["onChange", "prefix", "suffix"],
   },
+  PinInput: {
+    schema: pinInputSchema,
+    description:
+      "A multi-box input for PINs, OTPs, or verification codes. Supports numeric and alphanumeric types, masking, and auto-focus.",
+    dependencies: ["zod"],
+    requires: [], // Uses pure CSS
+    runtimeProps: ["onChange", "onComplete"],
+  },  
+ 
+
 } satisfies Record<string, ComponentMeta>;
 
 export type ComponentName = keyof typeof componentMeta;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { CurrencyCounter } from "./components/CurrencyCounter";
 import { PrivacyBadge } from "./components/PrivacyBadge";
@@ -8,10 +7,17 @@ import { StatCard } from "./components/StatCard/StatCard";
 import { OmniInput } from "./components/OmniInput/OmniInput";
 import { HoldToConfirmButton } from "./components/HoldToConfirmButton/HoldToConfirmButton";
 import { DemoBlock } from "./components/DemoBlock";
-import {  AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+import { FinancialCalculator } from "./components/FinancialCalculator";
+import { calculateEmi, generateAmortizationSchedule } from "./components/FinancialCalculator/emiHelpers";
+
+// 🚀 1. IMPORT PIN INPUT & CSS
+import { PinInput } from "./components/PinInput/PinInput";
+import "./components/PinInput/PinInput.css"; 
+
 import "./App.css";
 
-// 🚀 1. EXTRACT DATA (Simulating data from an API)
+// 🚀 2. EXTRACT DATA (Simulating data from an API)
 const MOCK_STATS = [
   { title: "Total Revenue", value: "$1,200,000", delta: "+15.5%", trend: "up" as const },
   { title: "Active Users", value: "3,450", delta: "-5.2%", trend: "down" as const },
@@ -33,9 +39,38 @@ export default function App() {
   const [btcAmount, setBtcAmount] = useState<number | null>(null);
   const [adImpressions, setAdImpressions] = useState<number | null>(null);
 
-  // 🚀 2. EXTRACT HANDLERS (Prevents re-creating functions on every render)
+  // 🚀 3. MOCK STATE FOR PIN INPUT
+  const [pinValue, setPinValue] = useState("");
+  const [pinError, setPinError] = useState<boolean | string>(false);
+  const [pinSuccess, setPinSuccess] = useState(false);
+
+  // 🚀 4. EXTRACT HANDLERS (Prevents re-creating functions on every render)
   const handleDeposit = () => setBalance((prev) => prev + 15000.25);
   const handleConfirm = () => alert("Transfer Confirmed!");
+
+  // 🚀 5. PIN INPUT HANDLERS
+  const handlePinChange = (val: string) => {
+    setPinValue(val);
+    if (pinError) setPinError(false); // Clear error when user starts typing again
+    if (pinSuccess) setPinSuccess(false);
+  };
+
+  const handlePinComplete = (val: string) => {
+    // Simulate API validation (1234 is the correct PIN)
+    if (val === "1234") {
+      setPinSuccess(true);
+      setPinError(false);
+    } else {
+      setPinError("Incorrect PIN. Please try 1234.");
+      setPinSuccess(false);
+      
+      // Optional: Clear the input after a short delay on failure
+      setTimeout(() => {
+        setPinValue("");
+        setPinError(false);
+      }, 1500);
+    }
+  };
 
   return (
     <div className="app-container">
@@ -70,7 +105,6 @@ export default function App() {
         description="Map over an array of statuses to render badges dynamically."
       >
         <div className="status-badge-container">
-          {/* 🚀 3. DYNAMIC RENDERING */}
           {MOCK_BADGES.map((badge, i) => (
             <StatusBadge key={i} status={badge.status} color={badge.color} theme="dark" />
           ))}
@@ -146,8 +180,79 @@ export default function App() {
           label="Hold to Factory Reset"
           icon={<AlertTriangle size={18} />}
         />
+      </DemoBlock>
 
-     
+      {/* 🚀 6. NEW PIN INPUT DEMO BLOCK */}
+      <DemoBlock 
+        title="Pin Input Component" 
+        description="Secure PIN entry with mobile keyboard support. Try typing '1234' to succeed, or any other 4 digits to fail."
+      >
+        <div className="demo-flex-col" style={{ alignItems: "center", gap: "16px" }}>
+          
+          <PinInput
+            length={4}
+            mask={false} // Hides the digits with bullets
+            value={pinValue}
+            onChange={handlePinChange}
+            onComplete={handlePinComplete}
+            error={pinError}
+            autoFocus={false} // Set to true if you want it to grab focus immediately
+          />
+
+          {/* Success Message Display */}
+          {pinSuccess && (
+            <span style={{ color: "#10b981", fontWeight: "bold" }}>
+              ✅ PIN Verified Successfully!
+            </span>
+          )}
+
+        </div>
+      </DemoBlock>
+
+      <DemoBlock 
+        title="Financial Calculator Engine" 
+        description="A scalable engine for EMI, SIP, and Tax calculators."
+      >
+        <FinancialCalculator
+          title="Loan EMI Calculator"
+          locale="en-IN"
+          theme="dark"
+          inputs={[
+            { id: "principal", label: "Loan Amount", min: 10000, max: 10000000, step: 10000, defaultValue: 500000, prefix: "₹" },
+            { id: "rate", label: "Interest Rate", min: 1, max: 30, step: 0.1, defaultValue: 8.5, suffix: "%" },
+            { id: "tenure", label: "Tenure", min: 1, max: 30, step: 1, defaultValue: 5, suffix: " Yrs" },
+          ]}
+          calculate={(values) => {
+            const emi = calculateEmi(values.principal, values.rate, values.tenure * 12);
+            const totalPayment = emi * values.tenure * 12;
+            const totalInterest = totalPayment - values.principal;
+            const schedule = generateAmortizationSchedule(values.principal, values.rate, values.tenure);
+
+            const formatMoney = (val: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+
+            return {
+              result: {
+                highlightLabel: "Monthly EMI",
+                highlightValue: formatMoney(emi),
+                breakdown: [
+                  { label: "Principal Amount", value: formatMoney(values.principal) },
+                  { label: "Total Interest", value: formatMoney(totalInterest), isWarning: true },
+                  { label: "Total Payment", value: formatMoney(totalPayment) },
+                ]
+              },
+              table: {
+                columns: ["Year", "Principal Paid", "Interest Paid", "Balance"],
+                rows: schedule.map(row => [
+                  `Year ${row.year}`,
+                  formatMoney(row.principalPaid),
+                  formatMoney(row.interestPaid),
+                  formatMoney(row.balance)
+                ])
+              }
+            };
+          } } 
+          currency={""}        
+        />
       </DemoBlock>
 
     </div>

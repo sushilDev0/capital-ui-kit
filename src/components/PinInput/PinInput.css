@@ -1,0 +1,83 @@
+/* Container */
+.pin-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.pin-wrapper {
+  position: relative;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.pin-no-copy {
+  user-select: none;
+}
+
+/* The single hidden input */
+.pin-hidden-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: default;
+}
+
+/* Base Box Styling */
+.pin-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+  color: #111827;
+}
+
+/* --- Sizes --- */
+.pin-size-sm { width: 2rem; height: 2.5rem; font-size: 1.125rem; }
+.pin-size-md { width: 2.5rem; height: 3rem; font-size: 1.25rem; }
+.pin-size-lg { width: 3.5rem; height: 4rem; font-size: 1.5rem; }
+
+/* --- Variants --- */
+.pin-variant-box {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+}
+
+.pin-variant-mixed {
+  border: 1px solid #d1d5db;
+  border-bottom-width: 2px;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+.pin-variant-underlined {
+  border: none;
+  border-bottom: 2px solid #d1d5db;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* --- States --- */
+.pin-default {
+  border-color: #d1d5db;
+}
+
+.pin-active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.pin-error {
+  border-color: #ef4444 !important;
+  color: #dc2626;
+}
+
+.pin-error-text {
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
