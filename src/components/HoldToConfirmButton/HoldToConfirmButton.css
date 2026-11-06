@@ -9,11 +9,12 @@
   font-weight: 600;
   font-family: ui-sans-serif, system-ui, sans-serif;
   user-select: none;
-  touch-action: manipulation;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* 🚀 Added: Prevents iOS long-press context menu */
+  touch-action: none;          /* 🚀 THE FIX: Stops browser from hijacking the drag */
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.1s ease, opacity 0.2s ease;
   
-  /* Colors are injected via React style prop */
   background-color: var(--btn-bg);
   color: var(--btn-text);
   border: 2px solid transparent;

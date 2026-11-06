@@ -4,19 +4,18 @@ import './HoldToConfirmButton.css';
 
 // 🎨 The Semantic Theme Map
 const THEME_MAP: Record<string, string> = {
-  primary: "#3797d8", // Blue
-  success: "#10b981", // Green
-  warning: "#f59e0b", // Amber
-  danger:  "#ef4444", // Red
-  info:    "#06b6d4", // Cyan
-  neutral: "#64748b", // Slate
+  primary: "#3797d8",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger:  "#ef4444",
+  info:    "#06b6d4",
+  neutral: "#64748b",
   dark:    "#1e293b", 
   light:   "#e2e8f0",
 };
 
-// Helper to determine text color based on background
 function getContrastColor(bgColor: string): string {
-  if (!bgColor.startsWith("#")) return "#ffffff"; // Default for CSS vars
+  if (!bgColor.startsWith("#")) return "#ffffff";
   const hex = bgColor.replace("#", "");
   if (hex.length !== 3 && hex.length !== 6) return "#ffffff";
 
@@ -31,7 +30,7 @@ function getContrastColor(bgColor: string): string {
     b = parseInt(hex.substring(4, 6), 16);
   }
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? "#0f172a" : "#ffffff"; // Dark text for light bgs, Light text for dark bgs
+  return yiq >= 128 ? "#0f172a" : "#ffffff";
 }
 
 export const HoldToConfirmButton: React.FC<HoldToConfirmButtonProps> = ({
@@ -44,7 +43,8 @@ export const HoldToConfirmButton: React.FC<HoldToConfirmButtonProps> = ({
   variant = "solid",
   className = "",
   children,
-  icon, // 👈 1. ADD THIS
+  icon,
+  type = "button", // 🚀 FIX 1: Default to "button" to prevent form submits
   ...nativeProps
 }) => {
   const [isHolding, setIsHolding] = useState(false);
@@ -74,12 +74,8 @@ export const HoldToConfirmButton: React.FC<HoldToConfirmButtonProps> = ({
     }
   };
 
-  // 1. Resolve the actual background color
   const bgColor = THEME_MAP[theme] || theme;
-  
-  // 2. Calculate the text and progress colors
   const textColor = getContrastColor(bgColor);
-  // Use a semi-transparent black overlay for the progress bar so it works on ANY color
   const progressColor = "rgba(0, 0, 0, 0.15)"; 
 
   const classes = ['hold-btn', isHolding ? 'holding' : '', className].filter(Boolean).join(' ');
@@ -95,6 +91,7 @@ export const HoldToConfirmButton: React.FC<HoldToConfirmButtonProps> = ({
   return (
     <button
       {...nativeProps}
+      type={type} // 🚀 Apply the type fix
       className={classes}
       data-size={size}
       data-variant={variant}
@@ -103,13 +100,12 @@ export const HoldToConfirmButton: React.FC<HoldToConfirmButtonProps> = ({
       onPointerDown={startHold}
       onPointerUp={cancelHold}
       onPointerLeave={cancelHold}
+      onPointerCancel={cancelHold} // 🚀 FIX 2: Handle OS interruptions (Mobile Safari bug)
       onContextMenu={(e) => e.preventDefault()}
     >
       <span className="hold-btn__progress" />
       <span className="hold-btn__content">
-        {/* 👈 2. Render the icon if provided */}
         {icon && <span className="hold-btn__icon">{icon}</span>}
-        
         {children || label}
       </span>
     </button>
