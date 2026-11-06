@@ -10,7 +10,8 @@ import { DemoBlock } from "./components/DemoBlock";
 import { AlertTriangle } from "lucide-react";
 import { FinancialCalculator } from "./components/FinancialCalculator";
 import { calculateEmi, generateAmortizationSchedule } from "./components/FinancialCalculator/emiHelpers";
-
+import { SplitBill } from "./components/SplitBill";
+import type { SplitBillResult } from "./components/SplitBill";
 // 🚀 1. IMPORT PIN INPUT & CSS
 import { PinInput } from "./components/PinInput/PinInput";
 import "./components/PinInput/PinInput.css"; 
@@ -54,6 +55,9 @@ export default function App() {
     if (pinError) setPinError(false); // Clear error when user starts typing again
     if (pinSuccess) setPinSuccess(false);
   };
+
+    // 🚀 5. SPLIT INPUT HANDLERS
+  const [splitBillResult, setSplitBillResult] = useState<SplitBillResult | null>(null);
 
   const handlePinComplete = (val: string) => {
     // Simulate API validation (1234 is the correct PIN)
@@ -254,6 +258,22 @@ export default function App() {
           currency={""}        
         />
       </DemoBlock>
+
+
+ <DemoBlock
+  title="Split Bill Component"
+  description="Frontend-only bill splitter. Add people, pick a split mode, set tip and tax."
+>
+  <SplitBill
+    currency="INR"
+    defaultPeople={["Ana", "Ben", "Cara"]}
+    defaultTip={15}
+    onChange={(result) => {
+      console.log("onChange payload:", result);
+      setSplitBillResult(result); // Keep this if you want to use the state elsewhere later
+    }}
+  />
+</DemoBlock>
 
     </div>
   );
