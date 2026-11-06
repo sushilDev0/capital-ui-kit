@@ -43,11 +43,12 @@ export default function App() {
 | `OmniInput` | Universal amount input for Fiat, Crypto, Stocks, and Marketing with smart formatting |
 | `HoldToConfirmButton` | Safety button requiring a long press to confirm high-stakes actions (e.g., deleting an account) |
 | `FinancialCalculator` | Universal calculator engine with dynamic sliders, animated results, and amortization tables |
+| `SplitBill` | Frontend-only bill splitter with equal, custom and percentage splits, tip, tax, and rounding that always sums to the total (work in progress) |
 
 
-<!-- TODO: add a props section for StatusBadge, StatCard and OmniInput, like the PrivacyBadge one below -->
+<!-- TODO: add a props section for StatusBadge and StatCard, like the PrivacyBadge one below -->
 
-More fintech components are planned. `HoldToConfirmButton` and `EmiCalculator` are next, followed by a transaction list, budget progress, a payment card and others.
+More fintech components are planned. `OtpInput` and `SplitBill` are next, followed by a transaction list, budget progress, a payment card and others.
 
 ### PrivacyBadge
 
@@ -113,7 +114,7 @@ A highly scalable, universal input component built for Fintech, Crypto, Stock Ma
 
 A safety-first button that requires the user to press and hold for a specific duration (e.g., 1 second) to confirm a destructive or high-stakes action. Features a fluid progress animation, automatic text contrast calculation, and semantic theme colors.
 
-```tsx  
+```tsx
 <HoldToConfirmButton 
   variant="solid" 
   theme="danger" 
@@ -123,7 +124,6 @@ A safety-first button that requires the user to press and hold for a specific du
   icon={<TrashIcon />}
 />
 ```
-## Props
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -159,10 +159,7 @@ A universal engine for building complex financial calculators (EMI, SIP, loans, 
     };
   }}
 />
-
 ```
-
-## Props
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -173,6 +170,63 @@ A universal engine for building complex financial calculators (EMI, SIP, loans, 
 | `calculate` | `(values) => { result, table }` | **Required** | The pure math function. Receives the current slider values and returns the formatted result strings and table data. |
 | `className` | `string` | `none` | Added to the root element. |
 
+### SplitBill
+
+> Work in progress. This section describes the planned API and may change before release.
+
+A frontend-only bill splitter. It takes a bill amount and a group of people, works out what each person owes, and reports every change through `onChange`. It makes no network calls and saves nothing, so your app decides what to do with the result.
+
+Money is calculated internally in whole minor units (paise, cents), never floating point, so the shares always add up exactly to the grand total. Any leftover paise from an uneven division is given to people in a fixed, predictable order.
+
+```tsx
+<SplitBill
+  total={3000}
+  defaultPeople={["Asha", "Ravi", "Meera", "Kabir"]}
+  tipPercent={10}
+  currency="INR"
+  locale="en-IN"
+  onChange={(result) => console.log(result.shares)}
+/>
+// Asha ₹825.00, Ravi ₹825.00, Meera ₹825.00, Kabir ₹825.00
+```
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `onChange` | `(result: SplitBillResult) => void` | **Required** | Called on every change with each person's share, the totals and the validation status. |
+| `total` | `number \| null` | `null` | The bill amount before tip and tax, in major units (e.g. `3000` for ₹3,000). `null` means empty. |
+| `defaultPeople` | `string[] \| Person[]` | `[]` | People to start with. Plain strings get generated ids. |
+| `splitModes` | `("equal" \| "custom" \| "percent")[]` | all three | Which split modes the user can pick. |
+| `defaultMode` | `"equal" \| "custom" \| "percent"` | `"equal"` | The mode shown first. |
+| `tipPercent` | `number` | `0` | Starting tip percentage. |
+| `tipPresets` | `number[]` | `[0, 5, 10, 15]` | Quick-pick tip buttons. A custom value is always available. |
+| `taxPercent` | `number` | `0` | Tax percentage added on top of the bill. |
+| `remainderTo` | `"first" \| "last"` | `"first"` | Who absorbs the leftover paise when the total does not divide evenly. |
+| `currency` | `string` | `"INR"` | ISO currency code. Currencies with no decimals (such as JPY) are handled. |
+| `locale` | `string` | `"en-IN"` | Controls number grouping. |
+| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `className` | `string` | `none` | Added to the root element. |
+
+`onChange` receives an object with this shape:
+
+```ts
+type SplitBillResult = {
+  mode: "equal" | "custom" | "percent";
+  currency: string;
+  subtotal: number;
+  tip: number;
+  tax: number;
+  total: number;
+  shares: { id: string; name: string; amount: number }[];
+  valid: boolean; // false while custom amounts or percentages do not add up
+};
+```
+
+Rules the component enforces:
+
+- Shares always add up to `total` exactly.
+- Custom amounts must equal the total, and percentages must equal exactly 100. Otherwise `valid` is `false` and an inline error is shown.
+- Zero people, an empty bill, negative values and non-numeric input never produce NaN or a negative share.
+- Removing a person recalculates the split, and in custom or percent mode asks the user to rebalance.
 
 ## Styling
 
@@ -210,8 +264,9 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `StatusBadge` | `--ui-sb-bg` `--ui-sb-fg` `--ui-sb-border` |
 | `StatCard` | `--ui-sc-bg` `--ui-sc-border` `--ui-sc-text-main` `--ui-sc-text-muted` `--ui-sc-icon-bg` `--ui-sc-trend-up-bg` `--ui-sc-trend-down-bg` |
 | `OmniInput` | `--ui-omni-bg` `--ui-omni-border` `--ui-omni-text` `--ui-omni-placeholder` `--ui-omni-error-text` `--ui-omni-preset-bg` |
-| `HoldToConfirmButton` | `--btn-bg` `--btn-text` `--btn-progress`  `--btn-duration`| 
-| `FinancialCalculator` | `--ec-bg` `--ec-border` `--ec-text`  `--ec-muted` `--ec-highlight` `--ec-accent` `--ec-input-bg` |
+| `HoldToConfirmButton` | `--btn-bg` `--btn-text` `--btn-progress` `--btn-duration` |
+| `FinancialCalculator` | `--ec-bg` `--ec-border` `--ec-text` `--ec-muted` `--ec-highlight` `--ec-accent` `--ec-input-bg` |
+| `SplitBill` | `--ui-split-bg` `--ui-split-border` `--ui-split-text` `--ui-split-muted` `--ui-split-accent` `--ui-split-error` |
 
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
 
@@ -254,13 +309,27 @@ npm run build:lib
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard, OmniInput (+ Zod schemas and CSS)
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard, OmniInput,
+                   HoldToConfirmButton, FinancialCalculator, SplitBill (+ Zod schemas and CSS)
   styles/          shared CSS tokens
   lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
   catalog.ts       JSON Schema catalog of all components
   registry.ts      maps component names to React components
   layout.ts        layout schema and validation
+```
+
+A component folder such as `SplitBill` keeps its parts together:
+
+```
+SplitBill/
+  index.ts          public exports
+  SplitBill.tsx     the component
+  SplitBill.css     default styles
+  schema.ts         Zod schema and types
+  reducer.ts        state, actions and reducer
+  helpers.ts        pure money and split math
+  helpers.test.ts   unit tests for the math
 ```
 
 ## Experimental: AI generator
@@ -278,9 +347,10 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Unit tests and CI
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
-- [x] `HoldToConfirmButton` and `StatCard`
 - [x] `FinancialCalculator` (Universal Calculator)
-- [ ] `OtpInput` and `SplitBill`
+- [x] `SplitBill` (equal, custom and percent splits, tip, tax)
+- [x] `OtpInput`
+- [ ] `FeeTransParencyBar` and `PaymentTimeline`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
@@ -288,8 +358,8 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ### 0.1.5 (unreleased)
 
-- WIP: `SplitBill` Divide an amount with rounding that always sums to the total
-- WIP: `OtpInput` Paste, auto-advance and backspace handling for verification codes
+- WIP: `FeeTransParencyBar` Shows recipient share, fees and exchange margin
+- WIP: `PaymentTimeline` Initiated, processing, settled or failed, like parcel tracking
 <!-- TODO: set the final release date, or change "(unreleased)" if 0.1.4 is already published -->
 
 
