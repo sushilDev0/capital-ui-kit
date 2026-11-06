@@ -57,7 +57,7 @@ export default function App() {
   };
 
     // 🚀 5. SPLIT INPUT HANDLERS
-  const [splitBillResult, setSplitBillResult] = useState<SplitBillResult | null>(null);
+  const [_, setSplitBillResult] = useState<SplitBillResult | null>(null);
 
   const handlePinComplete = (val: string) => {
     // Simulate API validation (1234 is the correct PIN)

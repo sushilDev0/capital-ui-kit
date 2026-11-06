@@ -1,5 +1,5 @@
 // split-bill/components/TipSelector.tsx
-import React, { memo } from 'react';
+import { memo } from 'react';
 import type { CurrencyConfig } from '../helpers';
 import type { AmountMode } from '../schema';
 
