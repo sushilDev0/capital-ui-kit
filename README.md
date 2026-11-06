@@ -356,7 +356,7 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ## Changelog
 
-### 0.1.5 (unreleased)
+### 0.1.6 (unreleased)
 
 - WIP: `FeeTransParencyBar` Shows recipient share, fees and exchange margin
 - WIP: `PaymentTimeline` Initiated, processing, settled or failed, like parcel tracking
