@@ -43,8 +43,8 @@ export default function App() {
 | `OmniInput` | Universal amount input for Fiat, Crypto, Stocks, and Marketing with smart formatting |
 | `HoldToConfirmButton` | Safety button requiring a long press to confirm high-stakes actions (e.g., deleting an account) |
 | `FinancialCalculator` | Universal calculator engine with dynamic sliders, animated results, and amortization tables |
-| `SplitBill` | Frontend-only bill splitter with equal, custom and percentage splits, tip, tax, and rounding that always sums to the total (work in progress) |
-
+| `SplitBill` | Frontend-only bill splitter with equal, custom and percentage splits, tip, tax, and rounding that always sums to the total|
+| `FeeTransparencyBar` | A premium checkout component showing a transparent breakdown of fees, taxes, and totals |
 
 <!-- TODO: add a props section for StatusBadge and StatCard, like the PrivacyBadge one below -->
 
@@ -228,6 +228,174 @@ Rules the component enforces:
 - Zero people, an empty bill, negative values and non-numeric input never produce NaN or a negative share.
 - Removing a person recalculates the split, and in custom or percent mode asks the user to rebalance.
 
+### FeeTransparencyBar
+
+A fee breakdown card for checkout and transfer flows. Give it an amount and a list of fee rules (fixed or percentage), and it renders each fee, a "Free" badge for zero-cost lines, and the total to pay. The calculation is a pure function, separate from the UI, and the component reports every result through `onChange`.
+
+- Fixed and percentage fee rules, calculated in one place
+- Each fee line is rounded to 2 decimals with a float-safe helper, so `1.005` rounds to `1.01`
+- Automatic "Free" badge for any fee line that comes to zero
+- Currency and number grouping through `Intl.NumberFormat` (for example `en-IN` gives `12,34,567`)
+- Typed props and a Zod schema for validation
+
+```tsx
+<FeeTransparencyBar
+  amount={1000}
+  fees={[
+    { label: "Service Fee", type: "percentage", value: 0.5 },
+    { label: "Network Fee", type: "fixed", value: 2.5 },
+    { label: "Platform Fee", type: "fixed", value: 0, isFree: true },
+  ]}
+  currency="USD"
+  locale="en-US"
+  variant="detailed"
+  theme="dark"
+  onChange={(result) => console.log(result)}
+/>
+```
+
+This renders:
+
+| Line | Value |
+| --- | --- |
+| Amount | $1,000.00 |
+| Service Fee (0.5%) | $5.00 |
+| Network Fee | $2.50 |
+| Platform Fee | Free |
+| **Total to pay** | **$1,007.50** |
+
+The same component in Indian rupees:
+
+```tsx
+<FeeTransparencyBar
+  amount={125000}
+  fees={[{ label: "Processing Fee", type: "percentage", value: 1 }]}
+  currency="INR"
+  locale="en-IN"
+/>
+// Amount ₹1,25,000.00, Processing Fee (1%) ₹1,250.00, Total ₹1,26,250.00
+```
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `amount` | `number` | **Required** | The principal amount the user is sending. Must be zero or more when validated with the schema. |
+| `fees` | `FeeItem[]` | **Required** | Array of fee rules. See `FeeItem` below. |
+| `currency` | `string` | `"USD"` | ISO currency code used by `Intl.NumberFormat`. |
+| `locale` | `string` | `"en-US"` | Controls number grouping (for example `en-IN` = `12,34,567`). |
+| `variant` | `"inline" \| "detailed" \| "marketing"` | `"detailed"` | Visual layout density. See variants below. |
+| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `onChange` | `(result: FeeTransparencyBarResult) => void` | none | Fires on mount and whenever the calculation produces a new result. |
+| `className` | `string` | none | Added to the root element after the default `fee-transparency-bar` class. |
+
+Keep the `fees` array referentially stable. The result is recalculated whenever `amount` or the `fees` array reference changes, and `onChange` fires for each new result. An array literal written inline in JSX is a new reference on every render, so if your `onChange` handler sets state in the parent, you can end up in a render loop. Define the array outside the component or wrap it in `useMemo`.
+
+```tsx
+const FEES: FeeItem[] = [
+  { label: "Service Fee", type: "percentage", value: 0.5 },
+  { label: "Network Fee", type: "fixed", value: 2.5 },
+];
+
+function Checkout({ amount }: { amount: number }) {
+  return <FeeTransparencyBar amount={amount} fees={FEES} />;
+}
+```
+
+#### FeeItem
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `label` | `string` | **Required** | Text shown for the fee line. |
+| `type` | `"fixed" \| "percentage"` | **Required** | `fixed` uses `value` as a money amount. `percentage` takes `value` percent of `amount`. |
+| `value` | `number` | `0` | A money amount for `fixed`, or a percentage for `percentage` (`0.5` means 0.5%). Must be zero or more. |
+| `id` | `string` | none | Optional stable key for the row. The array index is used when it is missing. |
+| `isFree` | `boolean` | none | Forces the fee to `0` and shows the green "Free" badge. |
+| `description` | `string` | none | Shown as a tooltip (`title`) on the fee label. |
+
+Any fee line whose calculated amount is `0` shows the "Free" badge, whether or not `isFree` is set.
+
+#### FeeTransparencyBarResult
+
+This is what `onChange` receives, and what `calculateFees` returns.
+
+```ts
+interface FeeTransparencyBarResult {
+  subtotal: number;   // the amount you passed in
+  totalFees: number;  // sum of all fee lines, rounded to 2 decimals
+  total: number;      // subtotal + totalFees, rounded to 2 decimals
+  breakdown: Array<FeeItem & { amount: number }>; // each fee with its calculated amount
+}
+```
+
+For the first example above:
+
+```json
+{
+  "subtotal": 1000,
+  "totalFees": 7.5,
+  "total": 1007.5,
+  "breakdown": [
+    { "label": "Service Fee", "type": "percentage", "value": 0.5, "amount": 5 },
+    { "label": "Network Fee", "type": "fixed", "value": 2.5, "amount": 2.5 },
+    { "label": "Platform Fee", "type": "fixed", "value": 0, "isFree": true, "amount": 0 }
+  ]
+}
+```
+
+#### Variants
+
+| Variant | What it renders |
+| --- | --- |
+| `detailed` | The full card: header, line items, divider, total, and trust footer. |
+| `inline` | A compact single row with the line items and total. The header, divider, and footer are hidden. |
+| `marketing` | Accepted by the API and exposed as `data-variant="marketing"` on the root element. It currently has no styles of its own and looks like `detailed`. |
+
+#### Calculation helpers
+
+The math lives in `helpers.ts` and has no React dependency, so you can reuse the same logic in tests, server code, or a custom layout.
+
+```ts
+import { calculateFees, formatMoney } from "./helpers";
+
+const result = calculateFees(1000, [
+  { label: "Service Fee", type: "percentage", value: 0.5 },
+  { label: "Network Fee", type: "fixed", value: 2.5 },
+]);
+// { subtotal: 1000, totalFees: 7.5, total: 1007.5, breakdown: [...] }
+
+formatMoney(result.total, "USD", "en-US"); // "$1,007.50"
+```
+
+How the math works:
+
+- A percentage fee is `amount * value / 100`. A fixed fee is `value`.
+- A fee with `isFree: true` is always `0`.
+- Each fee line is rounded to 2 decimals, then the rounded lines are summed. The total is `amount + totalFees`, rounded to 2 decimals.
+- `formatMoney` uses `Intl.NumberFormat`, so the number of decimals follows the currency (0 for JPY, 2 for USD, 3 for BHD). If the currency or locale is invalid, it logs a warning and falls back to `"<currency> <amount with 2 decimals>"` instead of crashing the UI.
+
+`calculateFees` and `formatMoney` are not re-exported from the component's `index.ts`. Import them from `./helpers` inside the repo, or add them to the exports to use them from the package.
+
+#### Validation with Zod
+
+```ts
+import { FeeItemSchema, FeeTransparencyBarPropsSchema } from "capital-ui-kit";
+
+const props = FeeTransparencyBarPropsSchema.parse({
+  amount: 1000,
+  fees: [{ label: "Service Fee", type: "percentage", value: 0.5 }],
+});
+// Defaults are filled in: currency "USD", locale "en-US", variant "detailed", theme "dark"
+```
+
+The schema covers the data props. `onChange` is a function, so it is added in the TypeScript type and is not part of the schema. Exported types: `FeeTransparencyBarProps`, `FeeTransparencyBarResult`, `FeeItem`.
+
+#### Accessibility and limitations
+
+- The root has `aria-live="polite"`, so screen readers announce updates when the amount or fees change. The info button has an `aria-label`, and the decorative icons and glow are hidden from assistive technology.
+- The visible text is fixed in English: "Fee Breakdown", "Amount", "Total to pay", "Includes all fees", and "Zero hidden fees. What you see is what you pay."
+- The footer's "Zero hidden fees" message is always shown in the `detailed` variant, so make sure your `fees` list really is complete.
+
+Styling variables for this component are listed in the table under [Theme with CSS variables](#theme-with-css-variables). The light theme is applied with `data-theme="light"` on the root.
+
 ## Styling
 
 The components use plain CSS, with no Tailwind dependency. Styles live in a `components` cascade layer and use zero-specificity selectors, so any CSS you write overrides them without `!important`.
@@ -267,8 +435,14 @@ To change inner parts such as the value, label or badge, set the component's CSS
 | `HoldToConfirmButton` | `--btn-bg` `--btn-text` `--btn-progress` `--btn-duration` |
 | `FinancialCalculator` | `--ec-bg` `--ec-border` `--ec-text` `--ec-muted` `--ec-highlight` `--ec-accent` `--ec-input-bg` |
 | `SplitBill` | `--ui-split-bg` `--ui-split-border` `--ui-split-text` `--ui-split-muted` `--ui-split-accent` `--ui-split-error` |
+| `FeeTransparencyBar` | `--fee-bg` `--fee-border` `--fee-glow` `--fee-divider` `--fee-text-main` `--fee-text-label` `--fee-text-muted` `--fee-font-mono` `--fee-accent-success` `--fee-accent-success-bg` `--fee-accent-success-border` |
 
 Shared variables, set by the kit on `:root` and available to every component: `--ui-font-mono`, `--ui-radius-card`, `--ui-up`, `--ui-up-bg`, `--ui-up-border`, `--ui-down`, `--ui-down-bg`, `--ui-down-border`.
+
+```tsx
+// FeeTransparencyBar example
+<FeeTransparencyBar amount={500} fees={FEES} className="[--fee-bg:#111827] [--fee-accent-success:#22c55e]" />
+```
 
 ### Server rendering
 
@@ -309,8 +483,7 @@ npm run build:lib
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, StatCard, OmniInput,
-                   HoldToConfirmButton, FinancialCalculator, SplitBill (+ Zod schemas and CSS)
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, HoldToConfirmButton, StatCard, OmniInput, SplitBill, FeeTransparencyBar (+ Zod schemas and CSS)
   styles/          shared CSS tokens
   lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
@@ -332,6 +505,17 @@ SplitBill/
   helpers.test.ts   unit tests for the math
 ```
 
+`FeeTransparencyBar` follows the same pattern without a reducer:
+
+```
+FeeTransparencyBar/
+  index.ts                  public exports
+  FeeTransparencyBar.tsx    the component
+  FeeTransparencyBar.css    default styles
+  schema.ts                 Zod schemas and types
+  helpers.ts                calculateFees and formatMoney
+```
+
 ## Experimental: AI generator
 
 A bring-your-own-key prompt-to-layout generator (Gemini, Claude, OpenAI-compatible and Ollama) lives on the [`ai-generator`](https://github.com/sushilDev0/capital-ui-kit/tree/ai-generator) branch. It is not part of main.
@@ -348,20 +532,17 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Plain CSS with a single `className` prop and CSS-variable theming
 - [x] Published on npm
 - [x] `FinancialCalculator` (Universal Calculator)
-- [x] `SplitBill` (equal, custom and percent splits, tip, tax)
-- [x] `OtpInput`
-- [ ] `FeeTransParencyBar` and `PaymentTimeline`
+- [ ] `PaymentTimeline` and `SavingsGola Tracker`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
 ## Changelog
 
-### 0.1.6 (unreleased)
+### 0.1.5 (unreleased)
 
-- WIP: `FeeTransParencyBar` Shows recipient share, fees and exchange margin
-- WIP: `PaymentTimeline` Initiated, processing, settled or failed, like parcel tracking
-<!-- TODO: set the final release date, or change "(unreleased)" if 0.1.4 is already published -->
-
+- `Savings Goal Tracker` Target, saved so far, projected completion date
+- `PaymentTimeline` Initiated, processing, settled or failed, like parcel tracking
+- WIP: `Any New Component asked by reviewer` waiting for any reviewers request
 
 
 ## License

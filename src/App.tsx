@@ -12,6 +12,9 @@ import { FinancialCalculator } from "./components/FinancialCalculator";
 import { calculateEmi, generateAmortizationSchedule } from "./components/FinancialCalculator/emiHelpers";
 import { SplitBill } from "./components/SplitBill";
 import type { SplitBillResult } from "./components/SplitBill";
+import { FeeTransparencyBar } from "./components/FeeTransparenyBar";
+import type { FeeTransparencyBarResult, FeeItem } from "./components/FeeTransparenyBar";
+
 // 🚀 1. IMPORT PIN INPUT & CSS
 import { PinInput } from "./components/PinInput/PinInput";
 import "./components/PinInput/PinInput.css"; 
@@ -32,6 +35,11 @@ const MOCK_BADGES = [
   { status: "refunded" as const, color: "amber" as const },
 ];
 
+const MOCK_FEES: FeeItem[] = [
+  { label: "Service Fee", type: "percentage", value: 0.5 },
+  { label: "Network Fee", type: "fixed", value: 2.50 },
+  { label: "Platform Fee", type: "fixed", value: 0, isFree: true }, // Demonstrates the green "Free" pill
+];
 export default function App() {
   // State
   const [balance, setBalance] = useState(124500.5);
@@ -58,6 +66,11 @@ export default function App() {
 
     // 🚀 5. SPLIT INPUT HANDLERS
   const [_, setSplitBillResult] = useState<SplitBillResult | null>(null);
+
+
+    // 🚀 Fee Transparency State
+  const [feeAmount, setFeeAmount] = useState<number | null>(1000);
+  const [feeResult, setFeeResult] = useState<FeeTransparencyBarResult | null>(null);
 
   const handlePinComplete = (val: string) => {
     // Simulate API validation (1234 is the correct PIN)
@@ -274,6 +287,39 @@ export default function App() {
     }}
   />
 </DemoBlock>
+
+      <DemoBlock
+        title="Fee Transparency Bar"
+        description="A trust mechanism for fintech. Update the amount below to see the fees calculate instantly in real-time."
+      >
+        <div className="demo-flex-col" style={{ gap: "32px" }}>
+          
+          {/* Input to control the amount */}
+          <OmniInput
+            format="currency"
+            currency="USD"
+            locale="en-US"
+            label="Amount to send"
+            value={feeAmount}
+            onChange={(val) => setFeeAmount(val || 0)}
+            presets={[100, 500, 1000, 5000]}
+          />
+
+          {/* The Premium Transparency Bar */}
+          <FeeTransparencyBar
+            amount={feeAmount || 0}
+            fees={MOCK_FEES}
+            currency="USD"
+            locale="en-US"
+            variant="detailed"
+            theme="dark"
+            onChange={(result) => {
+              console.log("Fee calculation:", result); // Logs to browser console instead
+              setFeeResult(result); 
+            }}
+          />
+        </div>
+      </DemoBlock>
 
     </div>
   );
