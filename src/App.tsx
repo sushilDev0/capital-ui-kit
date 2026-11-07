@@ -70,7 +70,7 @@ export default function App() {
 
     // 🚀 Fee Transparency State
   const [feeAmount, setFeeAmount] = useState<number | null>(1000);
-  const [feeResult, setFeeResult] = useState<FeeTransparencyBarResult | null>(null);
+  const [, setFeeResult] = useState<FeeTransparencyBarResult | null>(null);
 
   const handlePinComplete = (val: string) => {
     // Simulate API validation (1234 is the correct PIN)

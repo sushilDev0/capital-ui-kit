@@ -44,10 +44,8 @@ export function formatMoney(amount: number, currency: string, locale: string): s
     return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
-      // By removing minimumFractionDigits and maximumFractionDigits, 
-      // Intl automatically formats to 0 decimals for JPY, 2 for USD, 3 for BHD, etc.
     }).format(amount);
-  } catch (error) {
+  } catch {
     // Fallback if an invalid currency/locale is passed, preventing the whole UI from crashing
     console.warn(`Invalid currency or locale passed to formatMoney: ${currency}, ${locale}`);
     return `${currency} ${amount.toFixed(2)}`;
