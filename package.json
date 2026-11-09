@@ -51,5 +51,14 @@
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^5.0.5"
-  }
+  },
+  "repository": {
+  "type": "git",
+  "url": "git+https://github.com/sushilDev0/capital-ui-kit.git"
+},
+"homepage": "https://github.com/sushilDev0/capital-ui-kit#readme",
+"bugs": {
+  "url": "https://github.com/sushilDev0/capital-ui-kit/issues"
+},
+"keywords": ["react", "fintech", "ui-kit", "typescript", "zod", "components"]
 }
