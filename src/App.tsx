@@ -14,10 +14,11 @@ import { SplitBill } from "./components/SplitBill";
 import type { SplitBillResult } from "./components/SplitBill";
 import { FeeTransparencyBar } from "./components/FeeTransparenyBar";
 import type { FeeTransparencyBarResult, FeeItem } from "./components/FeeTransparenyBar";
-
+import type { TimelineStep } from "./components/PaymentTimeline";
+import PaymentTimeline from "./components/PaymentTimeline/PaymentTimeline";
 // 🚀 1. IMPORT PIN INPUT & CSS
 import { PinInput } from "./components/PinInput/PinInput";
-import "./components/PinInput/PinInput.css"; 
+import "./components/PinInput/PinInput.css";
 
 import "./App.css";
 
@@ -40,6 +41,38 @@ const MOCK_FEES: FeeItem[] = [
   { label: "Network Fee", type: "fixed", value: 2.50 },
   { label: "Platform Fee", type: "fixed", value: 0, isFree: true }, // Demonstrates the green "Free" pill
 ];
+
+// 🚀 3. PAYMENT TIMELINE MOCK DATA
+const MOCK_TIMELINE_STEPS: TimelineStep[] = [
+  {
+    id: "created",
+    label: "Payment initiated",
+    description: "You sent $1,250.00 to Acme Corp.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
+  },
+  {
+    id: "compliance",
+    label: "Compliance review",
+    description: "Automated AML check passed.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 45) // 45 mins ago
+  },
+  {
+    id: "processing",
+    label: "Processing payment",
+    description: "Funds are being routed to the beneficiary.",
+    timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 mins ago
+    meta: { "Transaction ID": "tx_987654321" }
+  },
+  { id: "delivered", label: "Delivered to beneficiary" },
+];
+
+const MOCK_TIMELINE_FAILED: TimelineStep[] = [
+  { id: "created", label: "Payment initiated", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3) },
+  { id: "compliance", label: "Compliance review", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2) },
+  { id: "processing", label: "Processing payment", description: "Insufficient funds on the source account.", timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1) },
+  { id: "delivered", label: "Delivered to beneficiary" },
+];
+
 export default function App() {
   // State
   const [balance, setBalance] = useState(124500.5);
@@ -48,27 +81,26 @@ export default function App() {
   const [btcAmount, setBtcAmount] = useState<number | null>(null);
   const [adImpressions, setAdImpressions] = useState<number | null>(null);
 
-  // 🚀 3. MOCK STATE FOR PIN INPUT
+  // 🚀 4. MOCK STATE FOR PIN INPUT
   const [pinValue, setPinValue] = useState("");
   const [pinError, setPinError] = useState<boolean | string>(false);
   const [pinSuccess, setPinSuccess] = useState(false);
 
-  // 🚀 4. EXTRACT HANDLERS (Prevents re-creating functions on every render)
+  // 🚀 5. EXTRACT HANDLERS (Prevents re-creating functions on every render)
   const handleDeposit = () => setBalance((prev) => prev + 15000.25);
   const handleConfirm = () => alert("Transfer Confirmed!");
 
-  // 🚀 5. PIN INPUT HANDLERS
+  // 🚀 6. PIN INPUT HANDLERS
   const handlePinChange = (val: string) => {
     setPinValue(val);
     if (pinError) setPinError(false); // Clear error when user starts typing again
     if (pinSuccess) setPinSuccess(false);
   };
 
-    // 🚀 5. SPLIT INPUT HANDLERS
+  // 🚀 7. SPLIT INPUT HANDLERS
   const [_, setSplitBillResult] = useState<SplitBillResult | null>(null);
 
-
-    // 🚀 Fee Transparency State
+  // 🚀 8. Fee Transparency State
   const [feeAmount, setFeeAmount] = useState<number | null>(1000);
   const [, setFeeResult] = useState<FeeTransparencyBarResult | null>(null);
 
@@ -80,7 +112,7 @@ export default function App() {
     } else {
       setPinError("Incorrect PIN. Please try 1234.");
       setPinSuccess(false);
-      
+
       // Optional: Clear the input after a short delay on failure
       setTimeout(() => {
         setPinValue("");
@@ -91,7 +123,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      
+
       <DemoBlock title="Privacy Badge Component">
         <PrivacyBadge value="1234567890123456" label="Credit Card" revealable />
       </DemoBlock>
@@ -110,15 +142,15 @@ export default function App() {
         </button>
       </DemoBlock>
 
-      <DemoBlock 
-        title="Debounced Search Component" 
+      <DemoBlock
+        title="Debounced Search Component"
         description="Type in the search box below. The search will be logged after a 400ms delay."
       >
         <DebouncedSearch onSearch={(q) => console.log("search:", q)} delay={400} minChars={2} />
       </DemoBlock>
 
-      <DemoBlock 
-        title="Status Badge Component" 
+      <DemoBlock
+        title="Status Badge Component"
         description="Map over an array of statuses to render badges dynamically."
       >
         <div className="status-badge-container">
@@ -136,8 +168,8 @@ export default function App() {
         </div>
       </DemoBlock>
 
-      <DemoBlock 
-        title="Omni Input (Universal Input)" 
+      <DemoBlock
+        title="Omni Input (Universal Input)"
         description="Demonstrating 4 different domains using one component."
       >
         <div className="demo-flex-col">
@@ -153,7 +185,7 @@ export default function App() {
             max={100000}
           />
 
-          <OmniInput 
+          <OmniInput
             format="decimal"
             symbol="AAPL"
             symbolPosition="suffix"
@@ -163,7 +195,7 @@ export default function App() {
             onChange={setShares}
           />
 
-          <OmniInput 
+          <OmniInput
             format="decimal"
             symbol="BTC"
             symbolPosition="suffix"
@@ -174,7 +206,7 @@ export default function App() {
             onChange={setBtcAmount}
           />
 
-          <OmniInput 
+          <OmniInput
             format="compact"
             decimals={0}
             label="Ad Impressions (Marketing)"
@@ -184,28 +216,28 @@ export default function App() {
         </div>
       </DemoBlock>
 
-      <DemoBlock 
-        title="Hold To Confirm Button" 
+      <DemoBlock
+        title="Hold To Confirm Button"
         description="A safety interaction for high-stakes actions."
       >
-       <HoldToConfirmButton 
-          variant="solid" 
-          theme="danger" 
-          size="md" 
+        <HoldToConfirmButton
+          variant="solid"
+          theme="danger"
+          size="md"
           holdDuration={2000}
-          onConfirm={handleConfirm} 
+          onConfirm={handleConfirm}
           label="Hold to Factory Reset"
           icon={<AlertTriangle size={18} />}
         />
       </DemoBlock>
 
-      {/* 🚀 6. NEW PIN INPUT DEMO BLOCK */}
-      <DemoBlock 
-        title="Pin Input Component" 
+      {/* 🚀 9. NEW PIN INPUT DEMO BLOCK */}
+      <DemoBlock
+        title="Pin Input Component"
         description="Secure PIN entry with mobile keyboard support. Try typing '1234' to succeed, or any other 4 digits to fail."
       >
         <div className="demo-flex-col" style={{ alignItems: "center", gap: "16px" }}>
-          
+
           <PinInput
             length={4}
             mask={false} // Hides the digits with bullets
@@ -226,8 +258,8 @@ export default function App() {
         </div>
       </DemoBlock>
 
-      <DemoBlock 
-        title="Financial Calculator Engine" 
+      <DemoBlock
+        title="Financial Calculator Engine"
         description="A scalable engine for EMI, SIP, and Tax calculators."
       >
         <FinancialCalculator
@@ -267,33 +299,32 @@ export default function App() {
                 ])
               }
             };
-          } } 
-          currency={""}        
+          }}
+          currency={""}
         />
       </DemoBlock>
 
-
- <DemoBlock
-  title="Split Bill Component"
-  description="Frontend-only bill splitter. Add people, pick a split mode, set tip and tax."
->
-  <SplitBill
-    currency="INR"
-    defaultPeople={["Ana", "Ben", "Cara"]}
-    defaultTip={15}
-    onChange={(result) => {
-      console.log("onChange payload:", result);
-      setSplitBillResult(result); // Keep this if you want to use the state elsewhere later
-    }}
-  />
-</DemoBlock>
+      <DemoBlock
+        title="Split Bill Component"
+        description="Frontend-only bill splitter. Add people, pick a split mode, set tip and tax."
+      >
+        <SplitBill
+          currency="INR"
+          defaultPeople={["Ana", "Ben", "Cara"]}
+          defaultTip={15}
+          onChange={(result) => {
+            console.log("onChange payload:", result);
+            setSplitBillResult(result); // Keep this if you want to use the state elsewhere later
+          }}
+        />
+      </DemoBlock>
 
       <DemoBlock
         title="Fee Transparency Bar"
         description="A trust mechanism for fintech. Update the amount below to see the fees calculate instantly in real-time."
       >
         <div className="demo-flex-col" style={{ gap: "32px" }}>
-          
+
           {/* Input to control the amount */}
           <OmniInput
             format="currency"
@@ -315,10 +346,74 @@ export default function App() {
             theme="dark"
             onChange={(result) => {
               console.log("Fee calculation:", result); // Logs to browser console instead
-              setFeeResult(result); 
+              setFeeResult(result);
             }}
           />
         </div>
+      </DemoBlock>
+
+      {/* 🚀 10. PAYMENT TIMELINE DEMO BLOCKS */}
+      <DemoBlock
+        title="Payment Timeline (Vertical)"
+        description="The standard audit trail view for transaction detail pages. Shows timestamps and descriptions."
+      >
+        <PaymentTimeline
+          steps={MOCK_TIMELINE_STEPS}
+          variant="vertical"
+          currentStepId="processing"
+          locale="en-US"
+          theme="dark" showTimestamps={false} />
+      </DemoBlock>
+
+      <DemoBlock
+        title="Payment Timeline (Horizontal)"
+        description="A compact checkout stepper. Great for top-of-page progress indicators."
+      >
+        <PaymentTimeline
+          steps={MOCK_TIMELINE_STEPS}
+          variant="horizontal"
+          currentStepId="processing"
+          showTimestamps={false}
+          locale="en-US"
+          theme="dark"
+        />
+      </DemoBlock>
+
+      <DemoBlock
+        title="Payment Timeline (Compact)"
+        description="A minimal vertical list for sidebars or cards. Hides descriptions to save space."
+      >
+        <PaymentTimeline
+          steps={MOCK_TIMELINE_STEPS}
+          variant="compact"
+          currentStepId="processing"
+          locale="en-US"
+          theme="dark" showTimestamps={false} />
+      </DemoBlock>
+
+      <DemoBlock
+        title="Payment Timeline (Card)"
+        description="A hero view answering 'Where is my payment?'. Includes a prominent status badge."
+      >
+        <PaymentTimeline
+          steps={MOCK_TIMELINE_STEPS}
+          variant="card"
+          currentStepId="processing"
+          locale="en-US"
+          theme="dark" showTimestamps={false} />
+      </DemoBlock>
+
+      <DemoBlock
+        title="Payment Timeline (Failure State)"
+        description="Demonstrates how the timeline handles a failed transaction (red X, error description)."
+      >
+        <PaymentTimeline
+          steps={MOCK_TIMELINE_FAILED}
+          variant="vertical"
+          currentStepId="processing"
+          failedStepId="processing"
+          locale="en-US"
+          theme="dark" showTimestamps={false} />
       </DemoBlock>
 
     </div>

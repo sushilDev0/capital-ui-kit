@@ -1,13 +1,13 @@
-import {z} from 'zod';
+import { z } from "zod";
 
 export const TimelineStepSchema = z.object({
-    id:z.string(),
-    label:z.string(),
-    description:z.string().optional(),
-    timeStamp: z.union([z.string(), z.date().optional()]),
-    status:z.enum(["completed","current","upcoming","failed"]).optional(),
+  id: z.string(),
+  label: z.string(),
+  description: z.string().optional(),
+  timestamp: z.union([z.string(), z.date()]).optional(),
+  status: z.enum(["completed", "current", "upcoming", "failed"]).optional(),
   meta: z.record(z.string(), z.string()).optional(), 
-})
+});
 
 export type TimelineStep = z.infer<typeof TimelineStepSchema>;
 
