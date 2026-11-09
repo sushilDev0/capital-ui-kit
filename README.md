@@ -1,5 +1,3 @@
-
-```markdown
 # Capital UI Kit
 
 ![CI](https://github.com/sushilDev0/capital-ui-kit/actions/workflows/ci.yml/badge.svg)
@@ -49,15 +47,40 @@ export default function App() {
 | `FeeTransparencyBar` | A premium checkout component showing a transparent breakdown of fees, taxes, and totals |
 | `PaymentTimeline` | A robust lifecycle tracker with vertical, horizontal, compact, and card variants |
 
-<!-- TODO: add a props section for StatusBadge and StatCard, like the PrivacyBadge one below -->
-
 More fintech components are planned. `OtpInput` and `SavingsGoalTracker` are next, followed by a transaction list, budget progress, a payment card and others.
 
+---
+
+### CurrencyCounter
+
+Animated currency amount with a caption and a trend badge.
+
+```tsx
+<CurrencyCounter
+  value={150000}
+  label="Net Investment"
+  currency="INR"
+  locale="en-IN"
+  theme="dark"
+  trendPercentage={15.5}
+/>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `value` | `number` | **Required** | The numerical amount to display and animate. |
+| `label` | `string` | `none` | Small descriptive label rendered above or below the value. |
+| `currency` | `string` | `"INR"` | ISO currency code used by the `Intl` API. |
+| `locale` | `string` | `"en-IN"` | Controls number grouping (e.g., `en-IN` = `1,50,000`). |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `trendPercentage` | `number` | `none` | Percentage change value to render a positive/negative trend badge. |
+| `className` | `string` | `none` | Added to the root element. |
+
+---
 
 ### PrivacyBadge
 
 Shows a card or account number with most of it hidden. The full value is never rendered into the page while it is hidden, and values of 4 characters or fewer are always fully masked.
-
 
 ```tsx
 <PrivacyBadge value="1234 5678 9012 3456" label="Credit card" revealable />
@@ -66,16 +89,84 @@ Shows a card or account number with most of it hidden. The full value is never r
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `value` | `string` | required | The number to show. Spaces and dashes are ignored and the result is regrouped in 4s. Letters work too, so account numbers such as IBANs are fine. Layout JSON validated against the schema accepts digits, spaces and dashes only |
-| `label` | `string` | none | Small caption above the number |
+| `value` | `string` | **Required** | The number to show. Spaces and dashes are ignored and the result is regrouped in 4s. Letters work too, so account numbers such as IBANs are fine. |
+| `label` | `string` | `none` | Small caption above the number |
 | `maskPattern` | `"last4"` \| `"first4"` \| `"all"` | `"last4"` | Which characters stay visible |
 | `maskChar` | `"•"` \| `"*"` | `"•"` | Character used for hidden positions |
 | `revealable` | `boolean` | `false` | Adds an eye button that shows and hides the number |
 | `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme |
-| `className` | `string` | none | Added to the root element |
+| `className` | `string` | `none` | Added to the root element |
 
 Screen readers do not read the row of masked characters. They hear a short description such as "Hidden, ending in 3 4 5 6", and hear the full number only after the person presses the reveal button.
 
+---
+
+### DebouncedSearch
+
+Search input with debounce and a minimum character count.
+
+```tsx
+<DebouncedSearch
+  placeholder="Search transactions..."
+  minLength={2}
+  debounceTime={300}
+  onSearch={(query) => console.log(query)}
+/>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `placeholder` | `string` | `"Search..."` | Placeholder text for the search input. |
+| `minLength` | `number` | `1` | Minimum character count required before firing the search callback. |
+| `debounceTime` | `number` | `300` | Delay in milliseconds before triggering `onSearch` after typing stops. |
+| `onSearch` | `(query: string) => void` | **Required** | Callback fired with the debounced search string. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `className` | `string` | `none` | Added to the root element. |
+
+---
+
+### StatusBadge
+
+Consistent paid, pending, failed and refunded states for transaction, invoice and order lists.
+
+```tsx
+<StatusBadge status="paid" label="Completed" />
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `status` | `"paid"` \| `"pending"` \| `"failed"` \| `"refunded"` \| `"active"` \| `"inactive"` | **Required** | Semantic state determining badge coloring and styling. |
+| `label` | `string` | `none` | Custom text override; defaults to a capitalized version of `status`. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `className` | `string` | `none` | Added to the root element. |
+
+---
+
+### StatCard
+
+KPI card with spring-animated rising numbers, trend deltas, and glassmorphism.
+
+```tsx
+<StatCard
+  title="Monthly Revenue"
+  value={45230}
+  currency="USD"
+  trend={12.4}
+  trendDirection="up"
+/>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | **Required** | Title of the KPI metric. |
+| `value` | `number` | **Required** | The primary numerical statistic to display. |
+| `currency` | `string` | `"USD"` | Optional currency symbol/code formatting. |
+| `trend` | `number` | `none` | Numerical value representing the trend percentage delta. |
+| `trendDirection` | `"up"` \| `"down"` | `"up"` | Direction of the trend indicator badge. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `className` | `string` | `none` | Added to the root element. |
+
+---
 
 ### OmniInput
 
@@ -94,7 +185,6 @@ A highly scalable, universal input component built for Fintech, Crypto, Stock Ma
 // Output on blur: 1.50000000 BTC
 ```
 
-
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `value` | `number \| null` | `null` | The controlled numeric value. `null` means empty. |
@@ -111,10 +201,11 @@ A highly scalable, universal input component built for Fintech, Crypto, Stock Ma
 | `presets` | `number[]` | `none` | Renders quick-fill pill buttons below the input. |
 | `size` | `"sm" \| "md" \| "lg" \| "xl"` | `"md"` | Fluidly scales padding, text, and radius. |
 | `variant` | `"default" \| "ghost" \| "flushed"` | `"default"` | `default` is glass, `flushed` is an underline only. |
-| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
 | `prefix` / `suffix` | `ReactNode` | `none` | Slots to inject custom elements (e.g., a token selector or "MAX" button). |
 | `className` | `string` | `none` | Added to the root element. |
 
+---
 
 ### HoldToConfirmButton
 
@@ -144,11 +235,11 @@ A safety-first button that requires the user to press and hold for a specific du
 | `children` | `ReactNode` | `none` | Overrides the label and icon with fully custom JSX. |
 | `className` | `string` | `none` | Added to the root element. |
 
+---
 
 ### FinancialCalculator
 
 A universal engine for building complex financial calculators (EMI, SIP, loans, tax). It provides a highly scalable UI shell with live sliders, animated results, and a dynamic amortization table. The actual math is decoupled and passed in via the `calculate` prop.
-
 
 ```tsx
 <FinancialCalculator
@@ -168,16 +259,16 @@ A universal engine for building complex financial calculators (EMI, SIP, loans, 
 />
 ```
 
-
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `title` | `string` | **Required** | The heading displayed at the top of the calculator. |
 | `inputs` | `CalculatorInput[]` | **Required** | An array configuring the sliders (`id`, `label`, `min`, `max`, `step`, `defaultValue`, `prefix`, `suffix`). |
 | `locale` | `string` | `"en-IN"` | Controls number grouping for the slider values (e.g., `en-IN` = `12,34,567`). |
-| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
 | `calculate` | `(values) => { result, table }` | **Required** | The pure math function. Receives the current slider values and returns the formatted result strings and table data. |
 | `className` | `string` | `none` | Added to the root element. |
 
+---
 
 ### SplitBill
 
@@ -186,7 +277,6 @@ A universal engine for building complex financial calculators (EMI, SIP, loans, 
 A frontend-only bill splitter. It takes a bill amount and a group of people, works out what each person owes, and reports every change through `onChange`. It makes no network calls and saves nothing, so your app decides what to do with the result.
 
 Money is calculated internally in whole minor units (paise, cents), never floating point, so the shares always add up exactly to the grand total. Any leftover paise from an uneven division is given to people in a fixed, predictable order.
-
 
 ```tsx
 <SplitBill
@@ -199,7 +289,6 @@ Money is calculated internally in whole minor units (paise, cents), never floati
 />
 // Asha ₹825.00, Ravi ₹825.00, Meera ₹825.00, Kabir ₹825.00
 ```
-
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
@@ -214,11 +303,10 @@ Money is calculated internally in whole minor units (paise, cents), never floati
 | `remainderTo` | `"first" \| "last"` | `"first"` | Who absorbs the leftover paise when the total does not divide evenly. |
 | `currency` | `string` | `"INR"` | ISO currency code. Currencies with no decimals (such as JPY) are handled. |
 | `locale` | `string` | `"en-IN"` | Controls number grouping. |
-| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
 | `className` | `string` | `none` | Added to the root element. |
 
 `onChange` receives an object with this shape:
-
 
 ```ts
 type SplitBillResult = {
@@ -233,6 +321,7 @@ type SplitBillResult = {
 };
 ```
 
+---
 
 ### FeeTransparencyBar
 
@@ -261,17 +350,17 @@ A fee breakdown card for checkout and transfer flows. Give it an amount and a li
 | `currency` | `string` | `"USD"` | ISO currency code used by `Intl.NumberFormat`. |
 | `locale` | `string` | `"en-US"` | Controls number grouping. |
 | `variant` | `"inline" \| "detailed" \| "marketing"` | `"detailed"` | Visual layout density. |
-| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
-| `onChange` | `(result: FeeTransparencyBarResult) => void` | none | Fires on mount and whenever the calculation produces a new result. |
-| `className` | `string` | none | Added to the root element. |
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `onChange` | `(result: FeeTransparencyBarResult) => void` | `none` | Fires on mount and whenever the calculation produces a new result. |
+| `className` | `string` | `none` | Added to the root element. |
 
+---
 
 ### PaymentTimeline
 
 A robust, highly customizable lifecycle tracker for payments, transfers, and order statuses. It handles completed, current, upcoming, and failed states with premium visuals, full ARIA accessibility, and zero external dependencies.
 
 It includes a headless helper (`resolveStepStatuses`) that automatically calculates the state of every step based on the `currentStepId` and `failedStepId`, removing the need for complex state management in the parent app.
-
 
 ```tsx
 <PaymentTimeline
@@ -292,14 +381,13 @@ It includes a headless helper (`resolveStepStatuses`) that automatically calcula
 | :--- | :--- | :--- | :--- |
 | `steps` | `TimelineStep[]` | **Required** | The ordered list of payment lifecycle stages. |
 | `variant` | `"vertical" \| "horizontal" \| "compact" \| "card"` | `"vertical"` | Visual layout density. See variants below. |
-| `currentStepId` | `string` | none | The active step. Everything before is auto-marked `completed`. |
-| `failedStepId` | `string` | none | Marks a specific step as `failed` and renders a red X. |
+| `currentStepId` | `string` | `none` | The active step. Everything before is auto-marked `completed`. |
+| `failedStepId` | `string` | `none` | Marks a specific step as `failed` and renders a red X. |
 | `locale` | `string` | `"en-US"` | Controls timestamp formatting. |
 | `showTimestamps` | `boolean` | `true` | Toggles time display. |
-| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
-| `onStepClick` | `(step) => void` | none | Makes each row interactive (keyboard accessible). |
-| `className` | `string` | none | Added to the root element. |
-
+| `theme` | `"dark"` \| `"light"` | `"dark"` | Colour theme. |
+| `onStepClick` | `(step) => void` | `none` | Makes each row interactive (keyboard accessible). |
+| `className` | `string` | `none` | Added to the root element. |
 
 #### `TimelineStep` Shape
 
@@ -314,7 +402,6 @@ interface TimelineStep {
 }
 ```
 
-
 #### Variants
 
 | Variant | What it renders |
@@ -323,6 +410,8 @@ interface TimelineStep {
 | `horizontal` | A compact checkout stepper. Great for top-of-page progress indicators. |
 | `compact` | A minimal vertical list for sidebars or cards. Hides descriptions to save space. |
 | `card` | A hero view answering "Where is my payment?". Includes a prominent status badge. |
+
+---
 
 ## Styling
 
@@ -372,6 +461,8 @@ Shared variables, set by the kit on `:root` and available to every component: `-
 
 The stylesheet is a normal CSS import, so frameworks that render on the server handle it the same way they handle any other CSS from `node_modules`. If you see unstyled markup, import `capital-ui-kit/styles.css` explicitly in your root layout.
 
+---
+
 ## Schemas and layouts
 
 Every component has a Zod schema describing its props. A catalog built from those schemas documents each component as JSON Schema, and a layout is plain JSON:
@@ -381,6 +472,8 @@ Every component has a Zod schema describing its props. A catalog built from thos
 ```
 
 Layouts are validated before use: unknown components and invalid props are rejected. A `className` value is checked too, and only class names (including CSS-variable overrides) are accepted.
+
+---
 
 ## Run it locally
 
@@ -403,6 +496,8 @@ npx tsc -b
 npm run build:lib
 ```
 
+---
+
 ## Project layout
 
 ```
@@ -416,13 +511,30 @@ src/
   layout.ts        layout schema and validation
 ```
 
+A component folder such as `PaymentTimeline` keeps its parts together:
+
+```
+PaymentTimeline/
+  index.ts                 public exports
+  PaymentTimeline.tsx      the component
+  PaymentTimeline.css      default styles
+  schema.ts                Zod schemas and types
+  helpers.ts               pure math and formatting functions
+```
+
+---
+
 ## Experimental: AI generator
 
 A bring-your-own-key prompt-to-layout generator (Gemini, Claude, OpenAI-compatible and Ollama) lives on the [`ai-generator`](https://github.com/sushilDev0/capital-ui-kit/tree/ai-generator) branch. It is not part of main.
 
+---
+
 ## Tech
 
 React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
+
+---
 
 ## Roadmap
 
@@ -433,9 +545,11 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Published on npm
 - [x] `FinancialCalculator` (Universal Calculator)
 - [x] `PaymentTimeline`
-- [ ] `SavingsGola Tracker`
+- [ ] `SavingsGoal Tracker`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
+
+---
 
 ## Changelog
 
@@ -444,7 +558,8 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - `Savings Goal Tracker` Target, saved so far, projected completion date
 - WIP: `Any New Component asked by reviewer` waiting for any reviewers request
 
+---
+
 ## License
 
 MIT
-```
