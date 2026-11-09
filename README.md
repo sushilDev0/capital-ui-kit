@@ -47,7 +47,7 @@ export default function App() {
 | `FeeTransparencyBar` | A premium checkout component showing a transparent breakdown of fees, taxes, and totals |
 | `PaymentTimeline` | A robust lifecycle tracker with vertical, horizontal, compact, and card variants |
 
-More fintech components are planned. `OtpInput` and `SavingsGoalTracker` are next, followed by a transaction list, budget progress, a payment card and others.
+More fintech components are planned. `SavingsGoalTracker` and `user request` are next, followed by a transaction list, budget progress, a payment card and others.
 
 ---
 
