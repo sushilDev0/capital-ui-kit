@@ -1,4 +1,5 @@
 # Capital UI Kit
+![Capital UI Kit demo](docs/demo.gif)
 
 ![CI](https://github.com/sushilDev0/capital-ui-kit/actions/workflows/ci.yml/badge.svg)
 
