@@ -1,4 +1,3 @@
-Here is the complete `README.md` file ready for you to copy and save. I have wrapped it in a single markdown block so you can easily click the **"Copy"** button in the top right corner, paste it into a new file named `README.md` in your project root, and save it.
 
 ```markdown
 # Capital UI Kit
