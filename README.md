@@ -47,8 +47,9 @@ export default function App() {
 | `SplitBill` | Frontend-only bill splitter with equal, custom and percentage splits, tip, tax, and rounding that always sums to the total |
 | `FeeTransparencyBar` | A premium checkout component showing a transparent breakdown of fees, taxes, and totals |
 | `PaymentTimeline` | A robust lifecycle tracker with vertical, horizontal, compact, and card variants |
+| `SavingsGoalTracker` | A customizable progress tracker with linear, circular, and compact variants |
 
-More fintech components are planned. `SavingsGoalTracker` and `user request` are next, followed by a transaction list, budget progress, a payment card and others.
+More fintech components are planned. All based on  `user request`.
 
 ---
 
@@ -403,6 +404,24 @@ interface TimelineStep {
 }
 ```
 
+
+---
+
+### SavingsGoalTracker
+
+A highly customizable progress tracker for financial goals. It handles currency formatting, relative time estimation (e.g., "in 3 months"), and automatically switches to a "Goal Reached" state if the saved amount exceeds the target. It includes Framer Motion spring animations and respects OS-level reduced motion preferences.
+
+```tsx
+<SavingsGoalTracker
+  title="Dream Vacation"
+  targetAmount={5000}
+  savedAmount={3250}
+  currency="USD"
+  targetDate="2027-12-31"
+  variant="default"
+  onContribute={() => console.log("Add funds clicked")}
+/>
+
 #### Variants
 
 | Variant | What it renders |
@@ -413,6 +432,35 @@ interface TimelineStep {
 | `card` | A hero view answering "Where is my payment?". Includes a prominent status badge. |
 
 ---
+
+
+## Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `targetAmount` | `number` | **Required** | The total amount needed to reach the goal. |
+| `savedAmount` | `number` | **Required** | The amount saved so far. |
+| `currency` | `string` | `"USD"` | ISO currency code used for formatting. |
+| `locale` | `string` | `"en-US"` | Controls number grouping. |
+| `variant` | `"default" \| "compact" \| "circular" \| "detailed"` | `"default"` | Visual layout density. |
+| `title` | `string` | `"Savings Goal"` | The title of the goal. |
+| `targetDate` | `string \| Date` | `none` | Used to calculate the relative "time left" (e.g., "in 3 months"). |
+| `theme` | `"dark" \| "light"` | `"dark"` | Colour theme. |
+| `icon` | `ReactNode` | `none` | Optional icon to render next to the title. |
+| `action` | `ReactNode` | `none` | Custom action element (e.g., an "Add Funds" button). |
+| `renderFooter` | `(result) => ReactNode` | `none` | Overrides the default footer text with custom JSX. |
+| `formatValue` | `(amount) => string` | `none` | Custom formatter if you don't want to use `Intl.NumberFormat`. |
+| `onContribute` | `() => void` | `none` | Callback fired when the default "Contribute" button is clicked. |
+| `className` | `string` | `none` | Added to the root element. |
+
+## Variants
+
+| Variant | What it renders |
+| :--- | :--- |
+| `default` | A horizontal progress bar with a percentage badge and remaining amount. |
+| `compact` | A minimal version for tight spaces (sidebars/cards). |
+| `circular` | A radial SVG progress ring. |
+| `detailed` | Everything in `default`, plus a "Contribute Now" button and the projected date. |
 
 ## Styling
 
@@ -503,7 +551,7 @@ npm run build:lib
 
 ```
 src/
-  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, HoldToConfirmButton, StatCard, OmniInput, SplitBill, FeeTransparencyBar, PaymentTimeline (+ Zod schemas and CSS)
+  components/      CurrencyCounter, PrivacyBadge, DebouncedSearch, StatusBadge, HoldToConfirmButton, StatCard, OmniInput, SplitBill, FeeTransparencyBar, PaymentTimeline, SavingsGoalTracker (+ Zod schemas and CSS)
   styles/          shared CSS tokens
   lib/             cx() helper and class-string validation
   meta.ts          schema, description and dependencies for each component
@@ -512,16 +560,6 @@ src/
   layout.ts        layout schema and validation
 ```
 
-A component folder such as `PaymentTimeline` keeps its parts together:
-
-```
-PaymentTimeline/
-  index.ts                 public exports
-  PaymentTimeline.tsx      the component
-  PaymentTimeline.css      default styles
-  schema.ts                Zod schemas and types
-  helpers.ts               pure math and formatting functions
-```
 
 ---
 
@@ -546,7 +584,7 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 - [x] Published on npm
 - [x] `FinancialCalculator` (Universal Calculator)
 - [x] `PaymentTimeline`
-- [ ] `SavingsGoal Tracker`
+- [x] `SavingsGoal Tracker`
 - [ ] 12+ fintech components
 - [ ] Docs site with a live playground
 
@@ -554,9 +592,8 @@ React 19, TypeScript, Vite, plain CSS (cascade layers), Motion, Zod 4, Vitest
 
 ## Changelog
 
-### 0.1.7 (unreleased)
+### 0.1.8 (unreleased)
 
-- `Savings Goal Tracker` Target, saved so far, projected completion date
 - WIP: `Any New Component asked by reviewer` waiting for any reviewers request
 
 ---
