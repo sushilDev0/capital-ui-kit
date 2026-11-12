@@ -1,224 +1,373 @@
 /* ============================================================
-   1. The Canvas: Animated Ambient Background
+   Capital UI Kit: demo page, laid out like a cheatsheet
+   Warm paper, natural colours, one accent colour per card.
+   Responsive from phones to ultrawide screens, with dark mode
+   and print. Everything is scoped to .app-container, so nothing
+   leaks into the components themselves.
+
+   Columns:  < 760px  1   |  760-1279px  2
+             1280-1759px  3   |  1760px+  4
    ============================================================ */
+
+/* ------------------------------------------------------------
+   1. Tokens (change these to re-skin the whole page)
+   ------------------------------------------------------------ */
 .app-container {
-  display: flex;
+  /* Surfaces and text */
+  --app-bg: #fbf8f1;
+  --app-card: #fffefa;
+  --app-hairline: rgba(60, 50, 30, 0.1);
+  --app-hairline-strong: rgba(60, 50, 30, 0.22);
+  --app-ink: #1f2a24;
+  --app-text: #424c45;
+  --app-muted: #66705f;
+  --app-on-accent: #ffffff;
+
+  /* Natural accent palette: cards cycle through these six */
+  --c1: #2f8a57; /* leaf */
+  --c2: #1f7f95; /* lagoon */
+  --c3: #b36b00; /* amber */
+  --c4: #c9553a; /* clay */
+  --c5: #2f6fd0; /* sky */
+  --c6: #8a4fa8; /* plum */
+
+  /* Soft colour washes behind the page */
+  --wash-1: rgba(120, 190, 130, 0.2);
+  --wash-2: rgba(244, 190, 90, 0.18);
+  --wash-3: rgba(110, 170, 220, 0.14);
+
+  --app-focus: #2f6fd0;
+  --app-shadow-sm: 0 1px 2px rgba(60, 45, 20, 0.05);
+  --app-shadow-md:
+    0 2px 4px rgba(60, 45, 20, 0.05),
+    0 18px 36px -16px rgba(60, 45, 20, 0.22);
+
+  --app-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --app-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Fluid spacing: grows with the screen, never too tight or too loose */
+  --app-pad: clamp(1rem, 4vw, 3.5rem);
+  --app-gap: clamp(0.875rem, 2vw, 1.5rem);
+  --app-card-pad: clamp(1.125rem, 2.4vw, 1.5rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-container {
+    --app-bg: #0f1511;
+    --app-card: #161e19;
+    --app-hairline: rgba(236, 241, 234, 0.1);
+    --app-hairline-strong: rgba(236, 241, 234, 0.22);
+    --app-ink: #eef3ec;
+    --app-text: #c9d2c8;
+    --app-muted: #9aa59b;
+    --app-on-accent: #0f1511;
+
+    --c1: #5cc489;
+    --c2: #4fc3d9;
+    --c3: #f2b84b;
+    --c4: #f08a6c;
+    --c5: #6ba3f5;
+    --c6: #c18ae0;
+
+    --wash-1: rgba(92, 196, 137, 0.1);
+    --wash-2: rgba(242, 184, 75, 0.07);
+    --wash-3: rgba(107, 163, 245, 0.09);
+
+    --app-focus: #8db8f7;
+    --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --app-shadow-md:
+      0 2px 4px rgba(0, 0, 0, 0.3),
+      0 18px 36px -16px rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* ------------------------------------------------------------
+   2. Page shell
+   ------------------------------------------------------------ */
+.app-container {
+  counter-reset: block;
+  box-sizing: border-box;
   min-height: 100vh;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.5rem;
-  padding: 2.5rem;
-  flex-wrap: wrap;
-  position: relative;
-  overflow: hidden; /* Keeps the ambient orbs inside */
-  background-color: #0f172a;
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 1840px;
+  margin: 0 auto;
+  /* Keeps content clear of phone notches and rounded corners */
+  padding:
+    max(var(--app-pad), env(safe-area-inset-top))
+    max(var(--app-pad), env(safe-area-inset-right))
+    max(var(--app-pad), env(safe-area-inset-bottom))
+    max(var(--app-pad), env(safe-area-inset-left));
+  background-color: var(--app-bg);
+  background-image:
+    radial-gradient(60rem 28rem at 0% 0%, var(--wash-1), transparent 65%),
+    radial-gradient(50rem 26rem at 100% 0%, var(--wash-2), transparent 65%),
+    radial-gradient(70rem 30rem at 50% 100%, var(--wash-3), transparent 65%);
+  background-repeat: no-repeat;
+  color: var(--app-text);
+  font-family: var(--app-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  column-gap: var(--app-gap);
+  column-count: 1;
 }
 
-/* ✨ The Ambient Orbs (These create the "glass" blur effect) */
-.app-container::before,
-.app-container::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  z-index: 0;
-  opacity: 0.6;
-  animation: floatOrb 20s infinite ease-in-out alternate;
+@media (min-width: 760px)  { .app-container { column-count: 2; } }
+@media (min-width: 1280px) { .app-container { column-count: 3; } }
+@media (min-width: 1760px) { .app-container { column-count: 4; } }
+
+.app-container ::selection {
+  background: color-mix(in srgb, var(--c1) 30%, transparent);
+  color: var(--app-ink);
 }
 
+/* Page title with a colourful rule underneath */
 .app-container::before {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, #10b981, transparent 70%);
-  top: -100px;
-  left: -100px;
+  content: "Capital UI Kit";
+  display: block;
+  column-span: all;
+  margin-bottom: clamp(1.5rem, 4vw, 2.75rem);
+  padding-bottom: clamp(1rem, 2.4vw, 1.5rem);
+  background: linear-gradient(90deg, var(--c1), var(--c3), var(--c5), transparent 90%) bottom / 100% 3px no-repeat;
+  font-family: var(--app-serif);
+  font-size: clamp(1.875rem, 1.2rem + 2.8vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--app-ink);
 }
 
+/* Quiet footer line across every column */
 .app-container::after {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, #3b82f6, transparent 70%);
-  bottom: -150px;
-  right: -100px;
-  animation-delay: -10s;
+  content: "Typed React components for fintech UIs";
+  display: block;
+  column-span: all;
+  margin-top: clamp(0.5rem, 2vw, 1.5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--app-hairline);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--app-muted);
 }
 
-@keyframes floatOrb {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(100px, 50px) scale(1.2); }
-  100% { transform: translate(-50px, 100px) scale(0.9); }
-}
-
-/* ============================================================
-   2. Typography: Premium Contrast
-   ============================================================ */
-h2 {
-  color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
-  background: linear-gradient(to right, #ffffff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-p {
-  color: #94a3b8;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-  line-height: 1.5;
-}
-
-/* ============================================================
-   3. The Glass Card: Interactive & Immersive
-   ============================================================ */
+/* ------------------------------------------------------------
+   3. Cards: a colour-coded accent per card
+   ------------------------------------------------------------ */
 .app-blocks {
-  position: relative;
-  z-index: 10; /* Keeps cards above the background orbs */
+  --card-accent: var(--c1);
+
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  flex: 1 1 350px; /* Better responsiveness */
-  
-  /* Glassmorphism */
-  background: rgba(255, 255, 255, 0.03); 
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  
-  /* Layered Shadows */
-  box-shadow: 
-    0 4px 24px -1px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1); 
-
-  /* Transitions for hover */
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
-  /* Entrance Animation */
-  animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 0 var(--app-gap);
+  padding: var(--app-card-pad);
+  break-inside: avoid;       /* never split a card across columns */
+  overflow-x: auto;          /* wide tables scroll inside the card, not the page */
+  /* A soft tint of the card's colour fades down from the top edge */
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--card-accent) 9%, transparent), transparent 150px),
+    var(--app-card);
+  border: 1px solid var(--app-hairline);
+  border-radius: 18px;
+  /* Accent strip along the top, following the rounded corners */
+  box-shadow: inset 0 4px 0 var(--card-accent), var(--app-shadow-sm);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-/* Stagger the entrance animation */
-.app-blocks:nth-child(1) { animation-delay: 0.1s; }
-.app-blocks:nth-child(2) { animation-delay: 0.2s; }
-.app-blocks:nth-child(3) { animation-delay: 0.3s; }
-.app-blocks:nth-child(4) { animation-delay: 0.4s; }
-.app-blocks:nth-child(5) { animation-delay: 0.5s; }
-.app-blocks:nth-child(6) { animation-delay: 0.6s; }
+.app-blocks:nth-child(6n + 2) { --card-accent: var(--c2); }
+.app-blocks:nth-child(6n + 3) { --card-accent: var(--c3); }
+.app-blocks:nth-child(6n + 4) { --card-accent: var(--c4); }
+.app-blocks:nth-child(6n + 5) { --card-accent: var(--c5); }
+.app-blocks:nth-child(6n + 6) { --card-accent: var(--c6); }
 
-@keyframes cardEntrance {
-  from { opacity: 0; transform: translateY(30px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+/* Hover lift only on devices that can hover (no stuck states on touch) */
+@media (hover: hover) {
+  .app-blocks:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--card-accent) 45%, var(--app-hairline));
+    box-shadow: inset 0 4px 0 var(--card-accent), var(--app-shadow-md);
+  }
 }
 
-/* 🪄 The Hover Magic */
-.app-blocks:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 20px 40px -5px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2); 
+/* Friendly feedback: the card you are using lights up */
+.app-blocks:focus-within {
+  border-color: var(--card-accent);
+  box-shadow:
+    inset 0 4px 0 var(--card-accent),
+    0 0 0 4px color-mix(in srgb, var(--card-accent) 18%, transparent);
 }
 
-/* Add a glowing inner highlight that follows the mouse (CSS only fallback) */
-.app-blocks::after {
+/* Anything inside a card must fit its width */
+.app-blocks > :not(h2):not(p) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Title: coloured "Nº 01" tag, serif name, fading rule */
+.app-blocks > h2 {
+  margin: 0;
+  font-family: var(--app-serif);
+  font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--app-ink);
+}
+
+.app-blocks > h2::before {
+  counter-increment: block;
+  content: "Nº " counter(block, decimal-leading-zero);
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-accent) 14%, transparent);
+  font-family: var(--app-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--card-accent);
+}
+
+.app-blocks > h2::after {
   content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  background: radial-gradient(
-    800px circle at 50% 50%,
-    rgba(255, 255, 255, 0.08),
-    transparent 40%
-  );
-  pointer-events: none;
+  display: block;
+  height: 1px;
+  margin-top: 1rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--card-accent) 55%, transparent), transparent);
 }
 
-.app-blocks:hover::after {
-  opacity: 1;
+.app-blocks > p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--app-muted);
 }
 
-/* ============================================================
-   4. Modern Button: Shine Effect
-   ============================================================ */
+/* ------------------------------------------------------------
+   4. Demo button: takes its card's colour
+   ------------------------------------------------------------ */
 .deposit-btn {
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  background-color: #10b981;
-  padding: 0.75rem 1.25rem;
+  align-self: flex-start;
+  padding: 0.6875rem 1.375rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--card-accent, var(--c1));
+  color: var(--app-on-accent);
+  font-family: var(--app-sans);
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
-  border: none;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-}
-
-/* The Shine Sweep */
-.deposit-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  transition: all 0.6s ease;
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--card-accent, var(--c1)) 70%, transparent);
+  transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .deposit-btn:hover {
-  background-color: #34d399;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
-}
-
-.deposit-btn:hover::before {
-  left: 100%; /* Sweeps the shine across the button */
+  filter: brightness(1.08);
+  box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--card-accent, var(--c1)) 80%, transparent);
 }
 
 .deposit-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+  filter: brightness(0.95);
 }
 
-/* ============================================================
-   5. Containers (Status Badges & Stat Cards)
-   ============================================================ */
+.deposit-btn:focus-visible {
+  outline: 3px solid var(--app-focus);
+  outline-offset: 3px;
+}
+
+/* Comfortable tap size on touch screens */
+@media (pointer: coarse) {
+  .deposit-btn {
+    min-height: 2.75rem;
+    padding-inline: 1.5rem;
+  }
+}
+
+/* ------------------------------------------------------------
+   5. Layout helpers used inside demo blocks
+   ------------------------------------------------------------ */
 .status-badge-container,
 .stat-card-container {
   display: flex;
-  flex-direction: row;
-  gap: 0.75rem;
+  flex-flow: row wrap;
   align-items: flex-start;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
+  gap: 0.75rem;
 }
-
 
 .demo-flex-row {
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   gap: 1rem;
-  flex-wrap: wrap;
 }
 
 .demo-flex-col {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 0.25rem;
+}
+
+/* ------------------------------------------------------------
+   6. Gentle entrance (skipped for reduced-motion users)
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .app-blocks {
+    animation: appFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .app-blocks:nth-child(2) { animation-delay: 0.05s; }
+  .app-blocks:nth-child(3) { animation-delay: 0.1s; }
+  .app-blocks:nth-child(4) { animation-delay: 0.15s; }
+  .app-blocks:nth-child(5) { animation-delay: 0.2s; }
+  .app-blocks:nth-child(6) { animation-delay: 0.25s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-blocks { transition: none; }
+  .app-blocks:hover { transform: none; }
+}
+
+@keyframes appFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------
+   7. Print: a clean two-column cheatsheet on paper
+   ------------------------------------------------------------ */
+@media print {
+  .app-container {
+    --app-bg: #ffffff;
+    --app-card: #ffffff;
+    --app-ink: #111111;
+    --app-text: #333333;
+    --app-muted: #555555;
+    --app-hairline: #d9d9d9;
+    --app-hairline-strong: #bfbfbf;
+    max-width: none;
+    padding: 0;
+    background-image: none;
+    column-count: 2;
+  }
+
+  .app-blocks {
+    overflow: visible;
+    box-shadow: inset 0 4px 0 var(--card-accent);
+    animation: none;
+    /* keep the components' own dark backgrounds and accent strips when printing */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .deposit-btn {
+    display: none;
+  }
 }

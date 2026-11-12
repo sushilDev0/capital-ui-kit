@@ -19,7 +19,8 @@ import PaymentTimeline from "./components/PaymentTimeline/PaymentTimeline";
 // 🚀 1. IMPORT PIN INPUT & CSS
 import { PinInput } from "./components/PinInput/PinInput";
 import "./components/PinInput/PinInput.css";
-
+import { SavingsGoalTracker } from "./components/SavingsGoalTracker";
+import { PiggyBank } from "lucide-react";
 import "./App.css";
 
 // 🚀 2. EXTRACT DATA (Simulating data from an API)
@@ -103,7 +104,7 @@ export default function App() {
   // 🚀 8. Fee Transparency State
   const [feeAmount, setFeeAmount] = useState<number | null>(1000);
   const [, setFeeResult] = useState<FeeTransparencyBarResult | null>(null);
-
+const [saved, setSaved] = useState(45000);
   const handlePinComplete = (val: string) => {
     // Simulate API validation (1234 is the correct PIN)
     if (val === "1234") {
@@ -415,7 +416,78 @@ export default function App() {
           locale="en-US"
           theme="dark" showTimestamps={false} />
       </DemoBlock>
+<DemoBlock
+  title="Savings Goal (Default)"
+  description="Progress bar, amounts, and time left to the target date."
+>
+  <SavingsGoalTracker
+    title="Emergency Fund"
+    targetAmount={500000}
+    savedAmount={325000}
+    targetDate="2027-06-30"
+    currency="INR"
+    locale="en-IN"
+    variant="default"
+    theme="dark"
+    icon={<PiggyBank size={18} />}
+  />
+</DemoBlock>
 
+<DemoBlock
+  title="Savings Goal (Detailed)"
+  description="Adds the Contribute button. Click it to add money."
+>
+  <SavingsGoalTracker
+    title="New Laptop"
+    targetAmount={120000}
+    savedAmount={saved}
+    targetDate="2027-03-31"
+    currency="INR"
+    locale="en-IN"
+    variant="detailed"
+    theme="dark"
+    onContribute={() => setSaved((s) => s + 10000)}
+  />
+</DemoBlock>
+
+<DemoBlock title="Savings Goal (Compact)" description="A small row for lists and dashboards.">
+  <SavingsGoalTracker
+    title="Trip Fund"
+    targetAmount={80000}
+    savedAmount={20000}
+    currency="INR"
+    locale="en-IN"
+    variant="compact"
+    theme="dark"
+  />
+</DemoBlock>
+
+<DemoBlock title="Savings Goal (Circular)" description="A ring with the percentage in the middle.">
+  <SavingsGoalTracker
+    title="Down Payment"
+    targetAmount={2000000}
+    savedAmount={900000}
+    currency="INR"
+    locale="en-IN"
+    variant="circular"
+    theme="dark"
+  />
+</DemoBlock>
+
+<DemoBlock
+  title="Savings Goal (Completed)"
+  description="Saved more than the target: shows the exceeded message."
+>
+  <SavingsGoalTracker
+    title="Course Fee"
+    targetAmount={25000}
+    savedAmount={27500}
+    currency="INR"
+    locale="en-IN"
+    variant="default"
+    theme="dark"
+  />
+</DemoBlock>
     </div>
   );
 }
