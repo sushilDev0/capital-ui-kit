@@ -2,10 +2,7 @@ import React from 'react';
 import type { StatusBadgeProps } from "./schema";
 import "./status-badge.css";
 
-/* ------------------------------------------------------------------
-   Inline SVG icon registry — zero external dependencies.
-   Class name: .sb-badge__icon (sized in CSS, not Tailwind).
-   ------------------------------------------------------------------ */
+
 const ICONS = {
   paid: (
     <svg className="sb-badge__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
