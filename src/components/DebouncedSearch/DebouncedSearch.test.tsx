@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event"; // 🚀 Import user-event
+import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
 import { DebouncedSearch } from "./DebouncedSearch";
 
 describe("DebouncedSearch", () => {
@@ -9,30 +8,29 @@ describe("DebouncedSearch", () => {
   });
 
   afterEach(() => {
+    // 🚀 THE FIX: Restore real timers FIRST, then cleanup
+    vi.useRealTimers(); 
+    cleanup(); 
     vi.restoreAllMocks();
-    vi.useRealTimers();
   });
 
-  it("does not fire onSearch before the delay", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime }); // 🚀 Setup user-event for fake timers
-    const onSearch = vi.fn();
-    render(<DebouncedSearch onSearch={onSearch} delay={400} minChars={2} />);
-    
-    const input = screen.getByRole("searchbox"); // 🚀 See note below
-    await user.type(input, "ab");
-    
-    expect(onSearch).not.toHaveBeenCalled();
-  });
-
-  it("fires onSearch after the delay", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  it("does not fire onSearch before the delay", () => {
     const onSearch = vi.fn();
     render(<DebouncedSearch onSearch={onSearch} delay={400} minChars={2} />);
     
     const input = screen.getByRole("searchbox");
-    await user.type(input, "ab");
+    fireEvent.change(input, { target: { value: "ab" } });
     
-    // Advance timer inside act
+    expect(onSearch).not.toHaveBeenCalled();
+  });
+
+  it("fires onSearch after the delay", () => {
+    const onSearch = vi.fn();
+    render(<DebouncedSearch onSearch={onSearch} delay={400} minChars={2} />);
+    
+    const input = screen.getByRole("searchbox");
+    fireEvent.change(input, { target: { value: "ab" } });
+    
     act(() => {
       vi.advanceTimersByTime(400);
     });
@@ -40,13 +38,12 @@ describe("DebouncedSearch", () => {
     expect(onSearch).toHaveBeenCalledWith("ab");
   });
 
-  it("does not fire if below minChars", async () => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  it("does not fire if below minChars", () => {
     const onSearch = vi.fn();
     render(<DebouncedSearch onSearch={onSearch} delay={400} minChars={3} />);
     
     const input = screen.getByRole("searchbox");
-    await user.type(input, "ab");
+    fireEvent.change(input, { target: { value: "ab" } });
     
     act(() => {
       vi.advanceTimersByTime(400);
@@ -55,18 +52,15 @@ describe("DebouncedSearch", () => {
     expect(onSearch).not.toHaveBeenCalled();
   });
 
-  it("focuses input on Cmd/Ctrl+K", async () => {
-    const onSearch = vi.fn();
-    render(<DebouncedSearch onSearch={onSearch} />);
+  it("focuses input on Cmd/Ctrl+K", () => {
+    render(<DebouncedSearch onSearch={vi.fn()} />);
     
     const input = screen.getByRole("searchbox");
     
-    // Ensure it starts unfocused
-    expect(document.activeElement).not.toBe(input);
+    expect(document.activeElement === input).toBe(false);
 
-    // 🚀 Fire on document instead of window (most React shortcuts listen here)
-    fireEvent.keyDown(document, { key: "k", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     
-    expect(document.activeElement).toBe(input);
+    expect(document.activeElement === input).toBe(true);
   });
 });
